@@ -4,14 +4,7 @@ import { selectedPersona } from "./helpers";
 import { Artist, Hacker, Hustler } from "../Traits/data";
 import "./Character.css";
 
-const Character = ({
-  name,
-  artist,
-  hacker,
-  hustler,
-  mint,
-  random,
-}) => {
+const Character = ({ name, artist, hacker, hustler, mint, random }) => {
   const artist_persona = Artist[selectedPersona(artist)];
   const hacker_persona = Hacker[selectedPersona(hacker)];
   const hustler_persona = Hustler[selectedPersona(hustler)];
@@ -55,13 +48,7 @@ const Character = ({
     <>
       <div className="columns">
         <div className="column character-design mx-3">
-          <div className="is-flex is-justify-content-space-between px-5 py-3">
-            <h3 className="title has-text-centered mb-2">{name}</h3>
-            <span className="tag is-dark is-large">
-              {artist + hacker + hustler}
-            </span>
-          </div>
-
+          <h3 className="title has-text-centered mb-2">{name}</h3>
           <canvas id="canvas" />
         </div>
 

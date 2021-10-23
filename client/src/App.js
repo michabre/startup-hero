@@ -7,7 +7,7 @@ import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
 import getWeb3 from "./getWeb3";
 import Config from "./config";
 
-// import Loading from "./components/Loading/Loading";
+import Loading from "./components/Loading/Loading";
 import Header from "./components/Layout/Header";
 import Hero from "./components/Layout/Hero";
 import Trait from "./components/Traits/Trait";
@@ -20,7 +20,7 @@ const App = () => {
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState(null);
   const [contract, setContract] = useState(null);
-  const [message, setMessage] = useState("Welcome");
+  const [message, setMessage] = useState("Let's get started!");
   const [artistLevel, setArtistLevel] = useState(5);
   const [hackerLevel, setHackerLevel] = useState(5);
   const [hustlerLevel, setHustlerLevel] = useState(5);
@@ -49,15 +49,8 @@ const App = () => {
 
     try {
       //
-      //fetchData();
-      // setCanvas(
-      //   new fabric.Canvas("canvas", {
-      //     height: 512,
-      //     width: 512,
-      //     backgroundColor: "pink",
-      //   })
-      // );
-
+      fetchData();
+      //
       addImage(
         new fabric.Canvas("canvas", {
           height: 512,
@@ -119,29 +112,52 @@ const App = () => {
     }).then((response) => console.log(response.data));
   };
 
+  const mintCanvas = async () => {
+    const response = await contract.methods?.mint(accounts[0]).send({
+      from: accounts[0],
+    });
+
+    //console.log(response);
+    if (response.status === true) {
+      testingAxios();
+      setMessage("NFT Created. Transaction:");
+    } else {
+      setMessage("Something went wrong");
+    }
+  };
+
   const randomClickHandler = () => {
     setArtistLevel(Math.round(Math.random() * 10));
     setHackerLevel(Math.round(Math.random() * 10));
     setHustlerLevel(Math.round(Math.random() * 10));
   };
 
-  // if (!web3) {
-  //   return (
-  //     <>
-  //       <Hero />
-  //       <Loading />
-  //     </>
-  //   );
-  // }
+  const connectClickHandler = async () => {
+    const response = await contract.methods?.admin().call({
+      from: accounts[0],
+    });
+    console.log(response);
+  };
+
+  if (!web3) {
+    return (
+      <>
+        <Hero />
+        <Loading />
+      </>
+    );
+  }
   return (
     <div className="App">
-      <Header />
+      <Header connect={connectClickHandler} />
       <Hero
-        title="Startup Hero"
+        title="Startup Hero Creator"
         subtitle="Generate a software developer NFT based on the traits of a startup."
       />
 
-      <div className="notification is-info has-text-centered">{message}</div>
+      <div className="notification is-info is-size-4 py-2 has-text-centered">
+        <div className="container">{message}</div>
+      </div>
 
       <section className="container px-3 py-5">
         <div className="columns mt-0">
@@ -160,7 +176,7 @@ const App = () => {
               </div>
 
               <div className="field">
-                <label className="label">Define Your Hero</label>
+                <label className="label">Define Characteristics</label>
               </div>
 
               <Trait
@@ -183,6 +199,16 @@ const App = () => {
                 level={hustlerLevel}
                 update={({ x }) => setHustlerLevel(x)}
               />
+
+              <div className="has-text-centered mb-4">
+                Current Total
+                <span className="tag is-dark is-large ml-3">
+                  {artistLevel + hackerLevel + hustlerLevel}
+                </span>
+              </div>
+              <p className="is-size-6 has-text-centered is-italic">
+                <b>Note</b>: needs to be <b>15</b> or less to Mint.
+              </p>
             </div>
           </div>
           <div id="character" className="column">
@@ -192,7 +218,7 @@ const App = () => {
               hacker={hackerLevel}
               hustler={hustlerLevel}
               random={randomClickHandler}
-              mint={testingAxios}
+              mint={mintCanvas}
             />
           </div>
         </div>

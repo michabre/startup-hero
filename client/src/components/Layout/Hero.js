@@ -24,17 +24,16 @@ const Hero = ({ title, subtitle }) => {
                   Choose a <b>name</b> for your hero.
                 </li>
                 <li>
-                  Determine where they are on the <b>Artist</b>, <b>Hacker</b>{" "}
-                  and <b>Hustler</b> spectrum. Each selection will determine the
-                  visual traits of your hero.
+                  Determine what characteristics best define your Hero. Do they
+                  lean more to being an <b>Artist</b>, <b>Hacker</b> or{" "}
+                  <b>Hustler</b>?<br />
+                  Each selection will determine the visual representation of
+                  your hero.
                 </li>
                 <li>
-                  Select an Angel Investor. This will improve the background of
-                  the hero.
-                </li>
-                <li>
-                  If you like everything, click <b>Mint</b> and this will create
-                  your own NFT!
+                  If you like everything and the total trait value is 15 or
+                  less, then click <b>Mint</b> and this will mint the image as
+                  an NFT.
                 </li>
               </ol>
             </div>

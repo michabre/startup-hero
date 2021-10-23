@@ -12,6 +12,7 @@ Install all dependencies by running:
 ```bash
 # install packages
 npm install
+
 ```
 
 I'm using Truffle and Ganache for locally interacting with the smart contract.
@@ -20,8 +21,11 @@ I'm using Truffle and Ganache for locally interacting with the smart contract.
 # start truffle
 truffle compile
 
-# deploy to Ganache
-truffle migrate --network ganache
+# compile and deploy to Ganache
+# truffle migrate --network ganache
+npm run ganache
+
+
 
 ```
 

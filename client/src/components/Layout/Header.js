@@ -1,6 +1,6 @@
 import React from "react";
 
-const Header = () => {
+const Header = ({ connect }) => {
   return (
     <nav
       className="navbar is-flex is-justify-content-space-between"
@@ -16,7 +16,7 @@ const Header = () => {
       <div className="navbar-end">
         <div className="navbar-item">
           <div className="buttons">
-            <button className="button is-primary">
+            <button className="button is-primary" onClick={connect}>
               <strong>Connect</strong>
             </button>
           </div>
