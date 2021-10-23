@@ -1,0 +1,13 @@
+# System Files
+.DS_STORE
+
+
+# Dev Dependencies
+node_modules
+.env
+
+# Flask
+__pycache__
+*.cfg
+Lib
+
