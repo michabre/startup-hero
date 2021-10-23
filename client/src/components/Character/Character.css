@@ -1,0 +1,9 @@
+#character .canvas-container {
+  margin: 0 auto;
+}
+#character .character-design {
+  background-color: #b4c7d6;
+  -moz-box-shadow: inset 0 0 1rem #000;
+  -webkit-box-shadow: inset 0 0 1rem #000;
+  box-shadow: inset 0 0 1rem #000;
+}

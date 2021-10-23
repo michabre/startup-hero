@@ -1,0 +1,9 @@
+.band {
+  background-color: #363636;
+  color: #d5d5d5;
+  padding: 1rem;
+}
+.band .title,
+.band .subtitle {
+  color: aliceblue;
+}

@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@500;800&display=swap");
+
+h2,
+h3 {
+  font-family: "Raleway", sans-serif;
+}
+
+h2 {
+  font-weight: 800;
+}
+
+h3 {
+  font-weight: 500;
+}
+
+.line-height-100 {
+  line-height: 0.75rem;
+}
+
+.App {
+  background-color: #b4c7d6;
+}
+.App .navbar {
+  background-color: #2460a8;
+}
+
+.App .traits {
+  background-color: #86b3d2;
+  padding: 1rem;
+  box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1),
+    0 0 0 1px rgba(10, 10, 10, 0.02);
+}
+
+.traits .columns:not(:last-child) {
+  margin-bottom: 0;
+}
