@@ -6,6 +6,7 @@ import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
 
 import getWeb3 from "./getWeb3";
 import Config from "./config";
+import { shuffle } from "./components/Character/shuffle";
 
 import Loading from "./components/Loading/Loading";
 import Header from "./components/Layout/Header";
@@ -25,6 +26,7 @@ const App = () => {
   const [hackerLevel, setHackerLevel] = useState(5);
   const [hustlerLevel, setHustlerLevel] = useState(5);
   const [characterName, setCharacterName] = useState("Bob");
+  const [characterDescription, setCharacterDescription] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -118,6 +120,7 @@ const App = () => {
     });
 
     //console.log(response);
+
     if (response.status === true) {
       testingAxios();
       setMessage("NFT Created. Transaction:");
@@ -214,6 +217,8 @@ const App = () => {
           <div id="character" className="column">
             <Character
               name={characterName}
+              description={characterDescription}
+              descriptionHandler={({ x }) => setCharacterDescription(x)}
               artist={artistLevel}
               hacker={hackerLevel}
               hustler={hustlerLevel}

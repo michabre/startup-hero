@@ -4,20 +4,28 @@ import { selectedPersona } from "./helpers";
 import { Artist, Hacker, Hustler } from "../Traits/data";
 import "./Character.css";
 
-const Character = ({ name, artist, hacker, hustler, mint, random }) => {
+function buildDescription(character_1, character_2, character_3) {
+  let options = [
+    character_1.description,
+    character_2.description,
+    character_3.description,
+  ];
+  return shuffle(options).toString();
+}
+
+const Character = ({
+  name,
+  description,
+  descriptionHandler,
+  artist,
+  hacker,
+  hustler,
+  mint,
+  random,
+}) => {
   const artist_persona = Artist[selectedPersona(artist)];
   const hacker_persona = Hacker[selectedPersona(hacker)];
   const hustler_persona = Hustler[selectedPersona(hustler)];
-
-  function buildDescription(character_1, character_2, character_3) {
-    let options = [
-      character_1.description,
-      character_2.description,
-      character_3.description,
-    ];
-    let text = shuffle(options);
-    return text.toString();
-  }
 
   function mintButton(handler) {
     let total = artist + hacker + hustler;
