@@ -85,16 +85,22 @@ const App = () => {
   });
 
   const addImage = (canvas) => {
-    fabric.Image.fromURL(layer_1, function (img) {
-      var img1 = img.scale(1).set({ left: 0, top: 0 });
+    fabric.Image.fromURL("http://localhost:3000/img/base.png", function (img) {
+      let base = img.scale(1).set({ left: 0, top: 0 });
 
-      fabric.Image.fromURL(layer_2, function (img) {
-        var img2 = img.scale(1).set({ left: 0, top: 0 });
+      fabric.Image.fromURL(layer_1, function (img) {
+        let img1 = img.scale(1).set({ left: 0, top: 0 });
 
-        fabric.Image.fromURL(layer_3, function (img) {
-          var img3 = img.scale(1).set({ left: 0, top: 0 });
+        fabric.Image.fromURL(layer_2, function (img) {
+          let img2 = img.scale(1).set({ left: 0, top: 0 });
 
-          canvas.add(new fabric.Group([img1, img2, img3], { left: 0, top: 0 }));
+          fabric.Image.fromURL(layer_3, function (img) {
+            let img3 = img.scale(1).set({ left: 0, top: 0 });
+
+            canvas.add(
+              new fabric.Group([base, img1, img2, img3], { left: 0, top: 0 })
+            );
+          });
         });
       });
     });
