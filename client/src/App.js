@@ -6,9 +6,9 @@ import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
 import getWeb3 from "./getWeb3";
 import Config from "./config";
 
-import { shuffle } from "./components/Character/shuffle";
-import { selectedPersona } from "./components/Character/helpers";
-import { Artist, Hacker, Hustler } from "./components/Traits/data";
+import { shuffle } from "./components/helpers/shuffle";
+import { selectedPersona } from "./components/Character/selectedPersona";
+import { Artist, Hacker, Hustler } from "./data/characters";
 
 import Loading from "./components/Loading/Loading";
 import Header from "./components/Layout/Header";
@@ -32,9 +32,9 @@ const App = () => {
   const [characterDescription, setCharacterDescription] = useState(
     "Description missing."
   );
-  const [layer_1, setLayer_1] = useState("http://localhost:3000/img/base.png");
-  const [layer_2, setLayer_2] = useState("http://localhost:3000/img/face.png");
-  const [layer_3, setLayer_3] = useState("http://localhost:3000/img/hair.png");
+  const [layer_1, setLayer_1] = useState("base.png");
+  const [layer_2, setLayer_2] = useState("face.png");
+  const [layer_3, setLayer_3] = useState("hair.png");
 
   useEffect(() => {
     async function fetchData() {
@@ -88,13 +88,13 @@ const App = () => {
     fabric.Image.fromURL("http://localhost:3000/img/base.png", function (img) {
       let base = img.scale(1).set({ left: 0, top: 0 });
 
-      fabric.Image.fromURL(layer_1, function (img) {
+      fabric.Image.fromURL(configuration.IMAGES + layer_1, function (img) {
         let img1 = img.scale(1).set({ left: 0, top: 0 });
 
-        fabric.Image.fromURL(layer_2, function (img) {
+        fabric.Image.fromURL(configuration.IMAGES + layer_2, function (img) {
           let img2 = img.scale(1).set({ left: 0, top: 0 });
 
-          fabric.Image.fromURL(layer_3, function (img) {
+          fabric.Image.fromURL(configuration.IMAGES + layer_3, function (img) {
             let img3 = img.scale(1).set({ left: 0, top: 0 });
 
             canvas.add(
@@ -116,7 +116,8 @@ const App = () => {
       character_2.description,
       character_3.description,
     ];
-    return shuffle(options).toString();
+
+    return shuffle(options).toString().replace(/,/g, " ");
   };
 
   const sendToStorage = (tid, imgUrl) => {
@@ -147,7 +148,7 @@ const App = () => {
       from: accounts[0],
     });
 
-    console.log(response);
+    //console.log(response);
 
     if (response.status === true) {
       let nftMinted = response.events.NftMinted;
