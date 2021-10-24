@@ -85,25 +85,32 @@ const App = () => {
   });
 
   const addImage = (canvas) => {
-    fabric.Image.fromURL("http://localhost:3000/img/base.png", function (img) {
-      let base = img.scale(1).set({ left: 0, top: 0 });
+    fabric.Image.fromURL(
+      configuration.IMAGES + "character-base.png",
+      function (img) {
+        let base = img.scale(1).set({ left: 0, top: 0 });
 
-      fabric.Image.fromURL(configuration.IMAGES + layer_1, function (img) {
-        let img1 = img.scale(1).set({ left: 0, top: 0 });
+        fabric.Image.fromURL(configuration.IMAGES + layer_1, function (img) {
+          let img1 = img.scale(1).set({ left: 0, top: 0 });
 
-        fabric.Image.fromURL(configuration.IMAGES + layer_2, function (img) {
-          let img2 = img.scale(1).set({ left: 0, top: 0 });
+          fabric.Image.fromURL(configuration.IMAGES + layer_2, function (img) {
+            let img2 = img.scale(1).set({ left: 0, top: 0 });
 
-          fabric.Image.fromURL(configuration.IMAGES + layer_3, function (img) {
-            let img3 = img.scale(1).set({ left: 0, top: 0 });
+            fabric.Image.fromURL(
+              configuration.IMAGES + layer_3,
+              function (img) {
+                let img3 = img.scale(1).set({ left: 0, top: 0 });
 
-            canvas.add(
-              new fabric.Group([base, img1, img2, img3], { left: 0, top: 0 })
+                canvas.add(
+                  // new fabric.Group([base, img1, img2, img3], { left: 0, top: 0 })
+                  new fabric.Group([base], { left: 0, top: 0 })
+                );
+              }
             );
           });
         });
-      });
-    });
+      }
+    );
   };
 
   const updateName = (e) => {

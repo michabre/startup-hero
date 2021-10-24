@@ -10,8 +10,6 @@ const Character = ({
   mint,
   random,
 }) => {
-
-
   function mintButton(handler) {
     let total = artist + hacker + hustler;
     let bool = total <= 15;
@@ -48,7 +46,7 @@ const Character = ({
         <div className="column is-one-third">
           <h3 className="title">Description</h3>
           <div className="card is-shady p-3">
-            <p className="title is-3 is-italic has-text-centered">
+            <p className="title is-4 is-italic has-text-centered">
               {description}
             </p>
           </div>
