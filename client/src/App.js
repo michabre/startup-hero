@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import parse from "html-react-parser";
 import { fabric } from "fabric";
-
 import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
-
 import getWeb3 from "./getWeb3";
 import Config from "./config";
+
 import { shuffle } from "./components/Character/shuffle";
-import { Artist, Hacker, Hustler } from "./components/Traits/data";
 import { selectedPersona } from "./components/Character/helpers";
+import { Artist, Hacker, Hustler } from "./components/Traits/data";
 
 import Loading from "./components/Loading/Loading";
 import Header from "./components/Layout/Header";
@@ -27,10 +27,14 @@ const App = () => {
   const [artistLevel, setArtistLevel] = useState(5);
   const [hackerLevel, setHackerLevel] = useState(5);
   const [hustlerLevel, setHustlerLevel] = useState(5);
+  const [successLevel, setSuccessLevel] = useState(0);
   const [characterName, setCharacterName] = useState("Bob");
   const [characterDescription, setCharacterDescription] = useState(
     "Description missing."
   );
+  const [layer_1, setLayer_1] = useState("http://localhost:3000/img/base.png");
+  const [layer_2, setLayer_2] = useState("http://localhost:3000/img/face.png");
+  const [layer_3, setLayer_3] = useState("http://localhost:3000/img/hair.png");
 
   useEffect(() => {
     async function fetchData() {
@@ -78,20 +82,16 @@ const App = () => {
       );
       console.log(error);
     }
-  }, [setMessage, accounts, contract]);
+  });
 
   const addImage = (canvas) => {
-    let face = "http://localhost:3000/img/face.png";
-    let base = "http://localhost:3000/img/base.png";
-    let hair = "http://localhost:3000/img/hair.png";
-
-    fabric.Image.fromURL(base, function (img) {
+    fabric.Image.fromURL(layer_1, function (img) {
       var img1 = img.scale(1).set({ left: 0, top: 0 });
 
-      fabric.Image.fromURL(face, function (img) {
+      fabric.Image.fromURL(layer_2, function (img) {
         var img2 = img.scale(1).set({ left: 0, top: 0 });
 
-        fabric.Image.fromURL(hair, function (img) {
+        fabric.Image.fromURL(layer_3, function (img) {
           var img3 = img.scale(1).set({ left: 0, top: 0 });
 
           canvas.add(new fabric.Group([img1, img2, img3], { left: 0, top: 0 }));
@@ -125,6 +125,7 @@ const App = () => {
     bodyFormData.append("artist", artistLevel);
     bodyFormData.append("hacker", hackerLevel);
     bodyFormData.append("hustler", hustlerLevel);
+    bodyFormData.append("success", successLevel);
     bodyFormData.append("artwork", img.toDataURL());
 
     Axios({
@@ -147,10 +148,7 @@ const App = () => {
       let values = nftMinted.returnValues;
       sendToStorage(values[0], values[1]);
       setMessage(
-        "NFT Minted. TxHash:" +
-          nftMinted.transactionHash +
-          "<br />View JSON: " +
-          values[1]
+        `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
       );
     } else {
       setMessage("Something went wrong");
@@ -178,11 +176,24 @@ const App = () => {
     console.log(response);
   };
 
+  // const mergeNfts = () => {
+  //   setSuccessLevel(2);
+  // }
+
   if (!web3) {
     return (
       <>
-        <Hero />
+        <Header
+          connect={() => {
+            console.log("Connection error.");
+          }}
+        />
+        <Hero
+          title="Startup Hero Creator"
+          subtitle="Generate a software developer NFT based on the traits of a startup."
+        />
         <Loading />
+        <Footer />
       </>
     );
   }
@@ -195,7 +206,7 @@ const App = () => {
       />
 
       <div className="notification is-info is-size-4 py-2 has-text-centered">
-        <div className="container">{message}</div>
+        <div className="container">{parse(message)}</div>
       </div>
 
       <section className="container px-3 py-5">

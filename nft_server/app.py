@@ -89,7 +89,7 @@ def create():
     new_artwork = request.form['artwork']
 
     sql = """INSERT INTO nfts (tid, name, description, image, hacker, artist, hustler, success, artwork)
-            VALUES (?,?,?,?,?,?,?,?)"""
+            VALUES (?,?,?,?,?,?,?,?,?)"""
     cursor = cursor.execute(sql, (new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, att_success, new_artwork))
     conn.commit()
 
@@ -106,7 +106,7 @@ def showNft(tid):
   cursor.execute("SELECT * FROM nfts WHERE tid=?", (tid,))
   record = cursor.fetchone()
 
-  return render_template("image.html", image=record[8])
+  return render_template("image.html", image=record[9])
 
 
 #
