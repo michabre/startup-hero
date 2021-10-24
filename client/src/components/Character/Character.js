@@ -1,31 +1,16 @@
 import React from "react";
-import { shuffle } from "./shuffle";
-import { selectedPersona } from "./helpers";
-import { Artist, Hacker, Hustler } from "../Traits/data";
 import "./Character.css";
-
-function buildDescription(character_1, character_2, character_3) {
-  let options = [
-    character_1.description,
-    character_2.description,
-    character_3.description,
-  ];
-  return shuffle(options).toString();
-}
 
 const Character = ({
   name,
   description,
-  descriptionHandler,
   artist,
   hacker,
   hustler,
   mint,
   random,
 }) => {
-  const artist_persona = Artist[selectedPersona(artist)];
-  const hacker_persona = Hacker[selectedPersona(hacker)];
-  const hustler_persona = Hustler[selectedPersona(hustler)];
+
 
   function mintButton(handler) {
     let total = artist + hacker + hustler;
@@ -64,11 +49,7 @@ const Character = ({
           <h3 className="title">Description</h3>
           <div className="card is-shady p-3">
             <p className="title is-3 is-italic has-text-centered">
-              {buildDescription(
-                artist_persona,
-                hacker_persona,
-                hustler_persona
-              )}
+              {description}
             </p>
           </div>
           <div className="buttons my-3">

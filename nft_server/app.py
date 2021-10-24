@@ -96,10 +96,10 @@ def create():
 
     new_artwork = request.form['artwork']
 
-    if new_image:
-      r = requests.get(new_image, allow_redirects=True)
-      saved_image = 'http://localhost:5000/nft/image/' + new_tid
-      open('static/etbNft_' + new_tid + '.jpg', 'wb').write(r.content)
+    # if new_image:
+    #   r = requests.get(new_image, allow_redirects=True)
+    #   saved_image = 'http://localhost:5000/nft/image/' + new_tid
+    #   open('static/etbNft_' + new_tid + '.jpg', 'wb').write(r.content)
 
 
     sql = """INSERT INTO nfts (tid, name, description, image, hacker, artist, hustler, artwork)
@@ -113,7 +113,6 @@ def create():
 #
 @app.route('/nft/image/<int:tid>', methods=['GET'])
 def showNft(tid):
-  # return send_file("./static/etbNft_{id}.jpg".format(id=tid), as_attachment=True)
   conn = db_connection()
   cursor = conn.cursor()
   record = None
@@ -121,7 +120,6 @@ def showNft(tid):
   cursor.execute("SELECT * FROM nfts WHERE tid=?", (tid,))
   record = cursor.fetchone()
 
-  #art = base64.encodebytes(record[8])
   return render_template("image.html", image=record[8])
 
 

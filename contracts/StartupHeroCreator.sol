@@ -21,13 +21,20 @@ contract StartupHeroCreator is ERC721 {
     uint256 newItemId = _tokenIds.current();
     userOwnedTokens[msg.sender].push(newItemId);
     _safeMint(to, newItemId);
+
+    string memory uri = tokenURI(newItemId);
+    uint256 time = block.timestamp;
+    
+    emit NftMinted(newItemId, uri, time);
   }
   
   function _baseURI() internal override pure returns (string memory) {
-    return 'https://nftplace.com/';
+    return 'http://localhost:5000/nft/';
   }
   
   function getToken(uint256 index) public view returns (uint256) {
       return userOwnedTokens[msg.sender][index];
   }
+
+  event NftMinted(uint256 _tid, string _uri, uint256 _time);
 }

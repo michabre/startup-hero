@@ -7,6 +7,8 @@ import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
 import getWeb3 from "./getWeb3";
 import Config from "./config";
 import { shuffle } from "./components/Character/shuffle";
+import { Artist, Hacker, Hustler } from "./components/Traits/data";
+import { selectedPersona } from "./components/Character/helpers";
 
 import Loading from "./components/Loading/Loading";
 import Header from "./components/Layout/Header";
@@ -26,7 +28,9 @@ const App = () => {
   const [hackerLevel, setHackerLevel] = useState(5);
   const [hustlerLevel, setHustlerLevel] = useState(5);
   const [characterName, setCharacterName] = useState("Bob");
-  const [characterDescription, setCharacterDescription] = useState("");
+  const [characterDescription, setCharacterDescription] = useState(
+    "Description missing."
+  );
 
   useEffect(() => {
     async function fetchData() {
@@ -92,15 +96,24 @@ const App = () => {
     setCharacterName(e.target.value);
   };
 
-  const testingAxios = () => {
+  const updateDescription = (character_1, character_2, character_3) => {
+    let options = [
+      character_1.description,
+      character_2.description,
+      character_3.description,
+    ];
+    return shuffle(options).toString();
+  };
+
+  const sendToStorage = (tid, imgUrl) => {
     let img = document.getElementById("canvas");
     let url = configuration.NFT_SERVER + "/nft/create";
     let bodyFormData = new FormData();
 
-    bodyFormData.append("tid", Math.round(Math.random() * 10000));
+    bodyFormData.append("tid", tid);
     bodyFormData.append("name", characterName);
-    bodyFormData.append("description", "Need to add a description");
-    bodyFormData.append("image", "http://localhost:3000/img/temp/test.jpg");
+    bodyFormData.append("description", characterDescription);
+    bodyFormData.append("image", imgUrl);
     bodyFormData.append("artist", artistLevel);
     bodyFormData.append("hacker", hackerLevel);
     bodyFormData.append("hustler", hustlerLevel);
@@ -119,11 +132,18 @@ const App = () => {
       from: accounts[0],
     });
 
-    //console.log(response);
+    console.log(response);
 
     if (response.status === true) {
-      testingAxios();
-      setMessage("NFT Created. Transaction:");
+      let nftMinted = response.events.NftMinted;
+      let values = nftMinted.returnValues;
+      sendToStorage(values[0], values[1]);
+      setMessage(
+        "NFT Minted. TxHash:" +
+          nftMinted.transactionHash +
+          "<br />View JSON: " +
+          values[1]
+      );
     } else {
       setMessage("Something went wrong");
     }
@@ -133,6 +153,14 @@ const App = () => {
     setArtistLevel(Math.round(Math.random() * 10));
     setHackerLevel(Math.round(Math.random() * 10));
     setHustlerLevel(Math.round(Math.random() * 10));
+
+    setCharacterDescription(
+      updateDescription(
+        Artist[selectedPersona(artistLevel)],
+        Hacker[selectedPersona(hackerLevel)],
+        Hustler[selectedPersona(hustlerLevel)]
+      )
+    );
   };
 
   const connectClickHandler = async () => {
@@ -186,21 +214,48 @@ const App = () => {
                 title="Creative"
                 subtitle=""
                 level={artistLevel}
-                update={({ x }) => setArtistLevel(x)}
+                update={({ x }) => {
+                  setArtistLevel(x);
+                  setCharacterDescription(
+                    updateDescription(
+                      Artist[selectedPersona(artistLevel)],
+                      Hacker[selectedPersona(hackerLevel)],
+                      Hustler[selectedPersona(hustlerLevel)]
+                    )
+                  );
+                }}
               />
 
               <Trait
                 title="Technical"
                 subtitle=""
                 level={hackerLevel}
-                update={({ x }) => setHackerLevel(x)}
+                update={({ x }) => {
+                  setHackerLevel(x);
+                  setCharacterDescription(
+                    updateDescription(
+                      Artist[selectedPersona(artistLevel)],
+                      Hacker[selectedPersona(hackerLevel)],
+                      Hustler[selectedPersona(hustlerLevel)]
+                    )
+                  );
+                }}
               />
 
               <Trait
                 title="Marketing"
                 subtitle=""
                 level={hustlerLevel}
-                update={({ x }) => setHustlerLevel(x)}
+                update={({ x }) => {
+                  setHustlerLevel(x);
+                  setCharacterDescription(
+                    updateDescription(
+                      Artist[selectedPersona(artistLevel)],
+                      Hacker[selectedPersona(hackerLevel)],
+                      Hustler[selectedPersona(hustlerLevel)]
+                    )
+                  );
+                }}
               />
 
               <div className="has-text-centered mb-4">
@@ -218,7 +273,6 @@ const App = () => {
             <Character
               name={characterName}
               description={characterDescription}
-              descriptionHandler={({ x }) => setCharacterDescription(x)}
               artist={artistLevel}
               hacker={hackerLevel}
               hustler={hustlerLevel}
