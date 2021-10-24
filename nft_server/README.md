@@ -15,7 +15,6 @@ source ./Scripts/activate
 pip install Flask
 pip install flask-cors
 pip install requests
-pip install Pillow
 
 # create sqllite database
 # make sure nfts.sqlite exists

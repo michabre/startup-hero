@@ -11,9 +11,6 @@ from os.path import join, dirname
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS, cross_origin
-from werkzeug.utils import secure_filename
-
-from helpers import generateHash, getUnixTimestamp
 
 load_dotenv(find_dotenv())
 
@@ -21,14 +18,14 @@ app = Flask(__name__)
 CORS(app)
 
 url = os.getenv("SITE_URL")
+db = os.getenv("DB")
 
 #
 #
 def db_connection():
   conn = None
   try:
-    # conn = sqlite3.connect('nfts.sqlite')
-    conn = sqlite3.connect('db.sqlite')
+    conn = sqlite3.connect(db)
   except sqlite3.error as e:
     print(e)
   return conn
@@ -37,7 +34,10 @@ def db_connection():
 #
 @app.route('/')
 def index():
-  return render_template('index.html', title="NFT Storage Facility")
+  return render_template(
+    'index.html', 
+    title='NFT Storage Facility', 
+    subtitle='A simple Flask app for managing NFT metadata')
 
 #
 # Get Metadata based on TokenId
@@ -48,7 +48,7 @@ def nft(tid):
   cursor = conn.cursor()
   record = None
 
-  cursor.execute("SELECT * FROM nfts WHERE tid=?", (tid,))
+  cursor.execute('SELECT * FROM nfts WHERE tid=?', (tid,))
   record = cursor.fetchone()
 
   if record is not None:
@@ -58,11 +58,14 @@ def nft(tid):
       name=record[2],
       description=record[3],
       image=record[4], 
-      attributes={"hacker":record[5], "artist":record[6], "hustler":record[7]}
+      attributes={"hacker":record[5], "artist":record[6], "hustler":record[7], "success":record[8]}
       ), 200
 
   else:
-    return "Something went wrong", 404
+    return render_template(
+      'index.html', 
+      title='404', 
+      subtitle='Could not find the NFT you are looking for.'), 404
 
 #
 # Record a newly minted NFT sent via POST
@@ -82,11 +85,12 @@ def create():
     att_hacker = request.form['hacker']
     att_artist = request.form['artist']
     att_hustler = request.form['hustler']
+    att_success = request.form['success']
     new_artwork = request.form['artwork']
 
-    sql = """INSERT INTO nfts (tid, name, description, image, hacker, artist, hustler, artwork)
+    sql = """INSERT INTO nfts (tid, name, description, image, hacker, artist, hustler, success, artwork)
             VALUES (?,?,?,?,?,?,?,?)"""
-    cursor = cursor.execute(sql, (new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, new_artwork))
+    cursor = cursor.execute(sql, (new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, att_success, new_artwork))
     conn.commit()
 
     return  f"NFT with the id: {cursor.lastrowid} created successfully", 201

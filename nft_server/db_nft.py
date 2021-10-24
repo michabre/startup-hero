@@ -1,9 +1,8 @@
 import sqlite3
 
-# conn = sqlite3.connect("nfts.sqlite")
-conn = sqlite3.connect("db.sqlite")
+conn = sqlite3.connect("nfts.sqlite")
+cursor = conn.cursor()
 
-cursor = conn.cursor();
 sql_query = """ CREATE TABLE nfts (
   id integer PRIMARY KEY,
   tid integer NOT NULL,
@@ -13,6 +12,7 @@ sql_query = """ CREATE TABLE nfts (
   hacker integer DEFAULT 0,
   artist integer DEFAULT 0,
   hustler integer DEFAULT 0,
+  success integer DEFAULT 0,
   artwork blob NOT NULL
 )"""
 
