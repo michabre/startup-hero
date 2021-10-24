@@ -64,6 +64,14 @@ const App = () => {
           backgroundColor: "pink",
         })
       );
+
+      setCharacterDescription(
+        updateDescription(
+          Artist[selectedPersona(artistLevel)],
+          Hacker[selectedPersona(hackerLevel)],
+          Hustler[selectedPersona(hustlerLevel)]
+        )
+      );
     } catch (error) {
       setMessage(
         `Failed to load web3, accounts, or contract. Check console for details.`
