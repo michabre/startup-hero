@@ -73,7 +73,7 @@ const App = () => {
         updateDescription(
           Artist[selectedPersona(artistLevel)].description,
           Hacker[selectedPersona(hackerLevel)].description,
-          Hustler[selectedPersona(hustlerLevel).description]
+          Hustler[selectedPersona(hustlerLevel)].description
         )
       );
     } catch (error) {
@@ -174,7 +174,7 @@ const App = () => {
       updateDescription(
         Artist[selectedPersona(artistLevel)].description,
         Hacker[selectedPersona(hackerLevel)].description,
-        Hustler[selectedPersona(hustlerLevel).description]
+        Hustler[selectedPersona(hustlerLevel)].description
       )
     );
 
@@ -255,9 +255,9 @@ const App = () => {
 
                   setCharacterDescription(
                     updateDescription(
-                      Artist[selectedPersona(artistLevel)],
-                      Hacker[selectedPersona(hackerLevel)],
-                      Hustler[selectedPersona(hustlerLevel)]
+                      Artist[selectedPersona(artistLevel)].description,
+                      Hacker[selectedPersona(hackerLevel)].description,
+                      Hustler[selectedPersona(hustlerLevel)].description
                     )
                   );
 
@@ -266,6 +266,7 @@ const App = () => {
                     Hacker[selectedPersona(hackerLevel)],
                     Hustler[selectedPersona(hustlerLevel)],
                   ]);
+
                   setLayer_1(characters[0].clothing); // clothing
                   setLayer_2(characters[1].face); // face
                   setLayer_3(characters[2].hair); // hair
@@ -280,9 +281,9 @@ const App = () => {
                   setHackerLevel(x);
                   setCharacterDescription(
                     updateDescription(
-                      Artist[selectedPersona(artistLevel)],
-                      Hacker[selectedPersona(hackerLevel)],
-                      Hustler[selectedPersona(hustlerLevel)]
+                      Artist[selectedPersona(artistLevel)].description,
+                      Hacker[selectedPersona(hackerLevel)].description,
+                      Hustler[selectedPersona(hustlerLevel)].description
                     )
                   );
                   let characters = shuffle([
@@ -304,9 +305,9 @@ const App = () => {
                   setHustlerLevel(x);
                   setCharacterDescription(
                     updateDescription(
-                      Artist[selectedPersona(artistLevel)],
-                      Hacker[selectedPersona(hackerLevel)],
-                      Hustler[selectedPersona(hustlerLevel)]
+                      Artist[selectedPersona(artistLevel)].description,
+                      Hacker[selectedPersona(hackerLevel)].description,
+                      Hustler[selectedPersona(hustlerLevel)].description
                     )
                   );
                   let characters = shuffle([
