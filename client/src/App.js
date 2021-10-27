@@ -36,6 +36,8 @@ const App = () => {
   const [layer_2, setLayer_2] = useState("face.png");
   const [layer_3, setLayer_3] = useState("hair.png");
 
+  const image_layers = ["face", "hair", "clothing"];
+
   useEffect(() => {
     async function fetchData() {
       // Get network provider and web3 instance.
@@ -102,8 +104,11 @@ const App = () => {
                 let img3 = img.scale(1).set({ left: 0, top: 0 });
 
                 canvas.add(
-                  // new fabric.Group([base, img1, img2, img3], { left: 0, top: 0 })
-                  new fabric.Group([base], { left: 0, top: 0 })
+                  new fabric.Group([base, img1, img2, img3], {
+                    left: 0,
+                    top: 0,
+                  })
+                  //new fabric.Group([base], { left: 0, top: 0 })
                 );
               }
             );
@@ -181,6 +186,17 @@ const App = () => {
         Hustler[selectedPersona(hustlerLevel)]
       )
     );
+
+    let characters = shuffle([Artist, Hacker, Hustler]);
+    let items = shuffle([0, 1, 2]);
+
+    // console.log(characters[0][items[0]].clothing);
+    // console.log(characters[1][items[1]].face);
+    // console.log(characters[2][items[2]].hair);
+
+    setLayer_1(characters[0][items[0]].clothing); // clothing
+    setLayer_2(characters[1][items[1]].face); // face
+    setLayer_3(characters[2][items[2]].hair); // hair
   };
 
   const connectClickHandler = async () => {
