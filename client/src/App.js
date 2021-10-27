@@ -32,9 +32,9 @@ const App = () => {
   const [characterDescription, setCharacterDescription] = useState(
     "Description missing."
   );
-  const [layer_1, setLayer_1] = useState("base.png");
-  const [layer_2, setLayer_2] = useState("face.png");
-  const [layer_3, setLayer_3] = useState("hair.png");
+  const [layer_1, setLayer_1] = useState("");
+  const [layer_2, setLayer_2] = useState("");
+  const [layer_3, setLayer_3] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -170,20 +170,23 @@ const App = () => {
     setHackerLevel(Math.round(Math.random() * 10));
     setHustlerLevel(Math.round(Math.random() * 10));
 
+    let artist = Artist[selectedPersona(artistLevel)];
+    let hacker = Hacker[selectedPersona(hackerLevel)];
+    let hustler = Hustler[selectedPersona(hustlerLevel)];
+
     setCharacterDescription(
       updateDescription(
-        Artist[selectedPersona(artistLevel)].description,
-        Hacker[selectedPersona(hackerLevel)].description,
-        Hustler[selectedPersona(hustlerLevel)].description
+        artist.description,
+        hacker.description,
+        hustler.description
       )
     );
 
-    let characters = shuffle([Artist, Hacker, Hustler]);
-    let items = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    let characters = shuffle([artist, hacker, hustler]);
 
-    setLayer_1(characters[0][selectedPersona(items[0])].clothing); // clothing
-    setLayer_2(characters[1][selectedPersona(items[1])].face); // face
-    setLayer_3(characters[2][selectedPersona(items[2])].hair); // hair
+    setLayer_1(characters[0].clothing); // clothing
+    setLayer_2(characters[1].face); // face
+    setLayer_3(characters[2].hair); // hair
   };
 
   const connectClickHandler = async () => {
@@ -253,19 +256,19 @@ const App = () => {
                 update={({ x }) => {
                   setArtistLevel(x);
 
+                  let artist = Artist[selectedPersona(artistLevel)];
+                  let hacker = Hacker[selectedPersona(hackerLevel)];
+                  let hustler = Hustler[selectedPersona(hustlerLevel)];
+
                   setCharacterDescription(
                     updateDescription(
-                      Artist[selectedPersona(artistLevel)].description,
-                      Hacker[selectedPersona(hackerLevel)].description,
-                      Hustler[selectedPersona(hustlerLevel)].description
+                      artist.description,
+                      hacker.description,
+                      hustler.description
                     )
                   );
 
-                  let characters = shuffle([
-                    Artist[selectedPersona(artistLevel)],
-                    Hacker[selectedPersona(hackerLevel)],
-                    Hustler[selectedPersona(hustlerLevel)],
-                  ]);
+                  let characters = shuffle([artist, hacker, hustler]);
 
                   setLayer_1(characters[0].clothing); // clothing
                   setLayer_2(characters[1].face); // face
@@ -279,18 +282,21 @@ const App = () => {
                 level={hackerLevel}
                 update={({ x }) => {
                   setHackerLevel(x);
+
+                  let artist = Artist[selectedPersona(artistLevel)];
+                  let hacker = Hacker[selectedPersona(hackerLevel)];
+                  let hustler = Hustler[selectedPersona(hustlerLevel)];
+
                   setCharacterDescription(
                     updateDescription(
-                      Artist[selectedPersona(artistLevel)].description,
-                      Hacker[selectedPersona(hackerLevel)].description,
-                      Hustler[selectedPersona(hustlerLevel)].description
+                      artist.description,
+                      hacker.description,
+                      hustler.description
                     )
                   );
-                  let characters = shuffle([
-                    Artist[selectedPersona(artistLevel)],
-                    Hacker[selectedPersona(hackerLevel)],
-                    Hustler[selectedPersona(hustlerLevel)],
-                  ]);
+
+                  let characters = shuffle([artist, hacker, hustler]);
+
                   setLayer_1(characters[0].clothing); // clothing
                   setLayer_2(characters[1].face); // face
                   setLayer_3(characters[2].hair); // hair
@@ -303,18 +309,21 @@ const App = () => {
                 level={hustlerLevel}
                 update={({ x }) => {
                   setHustlerLevel(x);
+
+                  let artist = Artist[selectedPersona(artistLevel)];
+                  let hacker = Hacker[selectedPersona(hackerLevel)];
+                  let hustler = Hustler[selectedPersona(hustlerLevel)];
+
                   setCharacterDescription(
                     updateDescription(
-                      Artist[selectedPersona(artistLevel)].description,
-                      Hacker[selectedPersona(hackerLevel)].description,
-                      Hustler[selectedPersona(hustlerLevel)].description
+                      artist.description,
+                      hacker.description,
+                      hustler.description
                     )
                   );
-                  let characters = shuffle([
-                    Artist[selectedPersona(artistLevel)],
-                    Hacker[selectedPersona(hackerLevel)],
-                    Hustler[selectedPersona(hustlerLevel)],
-                  ]);
+
+                  let characters = shuffle([artist, hacker, hustler]);
+
                   setLayer_1(characters[0].clothing); // clothing
                   setLayer_2(characters[1].face); // face
                   setLayer_3(characters[2].hair); // hair
