@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Axios from "axios";
 import parse from "html-react-parser";
 import { fabric } from "fabric";
@@ -32,9 +32,59 @@ const App = () => {
   const [characterDescription, setCharacterDescription] = useState(
     "Description missing."
   );
+
   const [layer_1, setLayer_1] = useState("");
   const [layer_2, setLayer_2] = useState("");
   const [layer_3, setLayer_3] = useState("");
+
+  const canvas = useCallback(() => {
+    return new fabric.Canvas("canvas", {
+      height: 512,
+      width: 512,
+      backgroundColor: "pink",
+    });
+  }, []);
+
+  let portrait = canvas();
+
+  useEffect(() => {
+    console.log("use-effect 1 fired");
+
+    function addImage(canvas, char1, char2, char3) {
+      console.log("add image fired");
+
+      fabric.Image.fromURL(
+        configuration.IMAGES + "character-base.png",
+        function (img) {
+          let base = img.scale(1).set({ left: 0, top: 0 });
+
+          fabric.Image.fromURL(configuration.IMAGES + char1, function (img) {
+            let img1 = img.scale(1).set({ left: 0, top: 0 });
+
+            fabric.Image.fromURL(configuration.IMAGES + char2, function (img) {
+              let img2 = img.scale(1).set({ left: 0, top: 0 });
+
+              fabric.Image.fromURL(
+                configuration.IMAGES + char3,
+                function (img) {
+                  let img3 = img.scale(1).set({ left: 0, top: 0 });
+
+                  canvas.add(
+                    new fabric.Group([base, img1, img2, img3], {
+                      left: 0,
+                      top: 0,
+                    })
+                  );
+                }
+              );
+            });
+          });
+        }
+      );
+    }
+
+    addImage(portrait, layer_1, layer_2, layer_3);
+  }, [portrait, layer_1, layer_2, layer_3]);
 
   useEffect(() => {
     async function fetchData() {
@@ -61,14 +111,6 @@ const App = () => {
       //
       fetchData();
       //
-      addImage(
-        new fabric.Canvas("canvas", {
-          height: 512,
-          width: 512,
-          backgroundColor: "pink",
-        })
-      );
-
       setCharacterDescription(
         updateDescription(
           Artist[selectedPersona(artistLevel)].description,
@@ -82,38 +124,7 @@ const App = () => {
       );
       console.log(error);
     }
-  });
-
-  const addImage = (canvas) => {
-    fabric.Image.fromURL(
-      configuration.IMAGES + "character-base.png",
-      function (img) {
-        let base = img.scale(1).set({ left: 0, top: 0 });
-
-        fabric.Image.fromURL(configuration.IMAGES + layer_1, function (img) {
-          let img1 = img.scale(1).set({ left: 0, top: 0 });
-
-          fabric.Image.fromURL(configuration.IMAGES + layer_2, function (img) {
-            let img2 = img.scale(1).set({ left: 0, top: 0 });
-
-            fabric.Image.fromURL(
-              configuration.IMAGES + layer_3,
-              function (img) {
-                let img3 = img.scale(1).set({ left: 0, top: 0 });
-
-                canvas.add(
-                  new fabric.Group([base, img1, img2, img3], {
-                    left: 0,
-                    top: 0,
-                  })
-                );
-              }
-            );
-          });
-        });
-      }
-    );
-  };
+  }, [artistLevel, hackerLevel, hustlerLevel]);
 
   const updateName = (e) => {
     setCharacterName(e.target.value);
