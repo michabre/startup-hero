@@ -48,11 +48,7 @@ const App = () => {
   let portrait = canvas();
 
   useEffect(() => {
-    console.log("use-effect 1 fired");
-
     function addImage(canvas, char1, char2, char3) {
-      console.log("add image fired");
-
       fabric.Image.fromURL(
         configuration.IMAGES + "character-base.png",
         function (img) {
@@ -207,18 +203,52 @@ const App = () => {
     console.log(response);
   };
 
-  // const mergeNfts = () => {
-  //   setSuccessLevel(2);
-  // }
+  const mergeNfts = () => {
+    let requestOne = Axios.get(configuration.NFT_SERVER + "/nft/4");
+    let requestTwo = Axios.get(configuration.NFT_SERVER + "/nft/2");
+    let requestThree = Axios.get(configuration.NFT_SERVER + "/nft/12");
+
+    Axios.all([requestOne, requestTwo, requestThree])
+      .then(
+        Axios.spread((...responses) => {
+          let attrTotal = combineAttributes(responses);
+          setSuccessLevel(attrTotal.success);
+
+          console.log(attrTotal);
+        })
+      )
+      .catch((errors) => {
+        // react on errors.
+      });
+  };
+
+  const combineAttributes = (arr) => {
+    let size = arr.length;
+    let artistTotal = 0;
+    let hackerTotal = 0;
+    let hustlerTotal = 0;
+    let successTotal = size;
+
+    arr.forEach((item, index) => {
+      let data = item.data.attributes;
+      artistTotal += data.artist;
+      hackerTotal += data.hacker;
+      hustlerTotal += data.hustler;
+      successTotal += data.success;
+    });
+
+    return {
+      artist: Math.round(artistTotal / size),
+      hacker: Math.round(hackerTotal / size),
+      hustler: Math.round(hustlerTotal / size),
+      success: successTotal,
+    };
+  };
 
   if (!web3) {
     return (
       <>
-        <Header
-          connect={() => {
-            console.log("Connection error.");
-          }}
-        />
+        <Header connect={connectClickHandler} />
         <Hero
           title="Startup Hero Creator"
           subtitle="Generate a software developer NFT based on the traits of a startup."
@@ -230,7 +260,7 @@ const App = () => {
   }
   return (
     <div className="App">
-      <Header connect={connectClickHandler} />
+      <Header connect={connectClickHandler} merge={mergeNfts} />
       <Hero
         title="Startup Hero Creator"
         subtitle="Generate a software developer NFT based on the traits of a startup."
