@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Axios from "axios";
 import parse from "html-react-parser";
 import { fabric } from "fabric";
@@ -13,9 +14,9 @@ import { Artist, Hacker, Hustler } from "./data/characters";
 import Loading from "./components/Loading/Loading";
 import Header from "./components/Layout/Header";
 import Hero from "./components/Layout/Hero";
-import Trait from "./components/Traits/Trait";
-import Character from "./components/Character/Character";
 import Footer from "./components/Layout/Footer";
+import Creator from "./components/Creator";
+import MergeMaster from "./components/MergeMaster";
 
 const configuration = Config("development");
 
@@ -259,144 +260,48 @@ const App = () => {
     );
   }
   return (
-    <div className="App">
-      <Header connect={connectClickHandler} merge={mergeNfts} />
-      <Hero
-        title="Startup Hero Creator"
-        subtitle="Generate a software developer NFT based on the traits of a startup."
-      />
+    <Router>
+      <div className="App">
+        <Header connect={connectClickHandler} merge={mergeNfts} />
+        <Hero
+          title="Startup Hero Creator"
+          subtitle="Generate a software developer NFT based on the traits of a startup."
+        />
 
-      <div className="notification is-info is-size-4 py-2 has-text-centered">
-        <div className="container">{parse(message)}</div>
-      </div>
-
-      <section className="container px-3 py-5">
-        <div className="columns mt-0">
-          <div className="column is-one-quarter">
-            <h3 className="title">Create Your Hero</h3>
-
-            <div className="traits is-shady">
-              <div className="field">
-                <label className="label">Name</label>
-                <input
-                  className="input"
-                  type="text"
-                  placeholder={characterName}
-                  onChange={updateName.bind(this)}
-                />
-              </div>
-
-              <div className="field">
-                <label className="label">Define Characteristics</label>
-              </div>
-
-              <Trait
-                title="Creative"
-                subtitle=""
-                level={artistLevel}
-                update={({ x }) => {
-                  setArtistLevel(x);
-
-                  let artist = Artist[selectedPersona(artistLevel)];
-                  let hacker = Hacker[selectedPersona(hackerLevel)];
-                  let hustler = Hustler[selectedPersona(hustlerLevel)];
-
-                  setCharacterDescription(
-                    updateDescription(
-                      artist.description,
-                      hacker.description,
-                      hustler.description
-                    )
-                  );
-
-                  let characters = shuffle([artist, hacker, hustler]);
-
-                  setLayer_1(characters[0].clothing); // clothing
-                  setLayer_2(characters[1].face); // face
-                  setLayer_3(characters[2].hair); // hair
-                }}
-              />
-
-              <Trait
-                title="Technical"
-                subtitle=""
-                level={hackerLevel}
-                update={({ x }) => {
-                  setHackerLevel(x);
-
-                  let artist = Artist[selectedPersona(artistLevel)];
-                  let hacker = Hacker[selectedPersona(hackerLevel)];
-                  let hustler = Hustler[selectedPersona(hustlerLevel)];
-
-                  setCharacterDescription(
-                    updateDescription(
-                      artist.description,
-                      hacker.description,
-                      hustler.description
-                    )
-                  );
-
-                  let characters = shuffle([artist, hacker, hustler]);
-
-                  setLayer_1(characters[0].clothing); // clothing
-                  setLayer_2(characters[1].face); // face
-                  setLayer_3(characters[2].hair); // hair
-                }}
-              />
-
-              <Trait
-                title="Marketing"
-                subtitle=""
-                level={hustlerLevel}
-                update={({ x }) => {
-                  setHustlerLevel(x);
-
-                  let artist = Artist[selectedPersona(artistLevel)];
-                  let hacker = Hacker[selectedPersona(hackerLevel)];
-                  let hustler = Hustler[selectedPersona(hustlerLevel)];
-
-                  setCharacterDescription(
-                    updateDescription(
-                      artist.description,
-                      hacker.description,
-                      hustler.description
-                    )
-                  );
-
-                  let characters = shuffle([artist, hacker, hustler]);
-
-                  setLayer_1(characters[0].clothing); // clothing
-                  setLayer_2(characters[1].face); // face
-                  setLayer_3(characters[2].hair); // hair
-                }}
-              />
-
-              <div className="has-text-centered mb-4">
-                Current Total
-                <span className="tag is-dark is-large ml-3">
-                  {artistLevel + hackerLevel + hustlerLevel}
-                </span>
-              </div>
-              <p className="is-size-6 has-text-centered is-italic">
-                <b>Note</b>: needs to be <b>15</b> or less to Mint.
-              </p>
-            </div>
-          </div>
-          <div id="character" className="column">
-            <Character
-              name={characterName}
-              description={characterDescription}
-              artist={artistLevel}
-              hacker={hackerLevel}
-              hustler={hustlerLevel}
-              random={randomClickHandler}
-              mint={mintCanvas}
-            />
-          </div>
+        <div className="notification is-info is-size-4 py-2 has-text-centered">
+          <div className="container">{parse(message)}</div>
         </div>
-      </section>
-      <Footer />
-    </div>
+
+        <section className="container px-3 py-5">
+          <Switch>
+            <Route exact path="/">
+              <Creator
+                updateName={updateName}
+                characterName={characterName}
+                artistLevel={artistLevel}
+                setArtistLevel={setArtistLevel}
+                hackerLevel={hackerLevel}
+                setHackerLevel={setHackerLevel}
+                hustlerLevel={hustlerLevel}
+                setHustlerLevel={setHustlerLevel}
+                characterDescription={characterDescription}
+                setCharacterDescription={setCharacterDescription}
+                updateDescription={updateDescription}
+                setLayer_1={setLayer_1}
+                setLayer_2={setLayer_2}
+                setLayer_3={setLayer_3}
+                randomClickHandler={randomClickHandler}
+                mintCanvas={mintCanvas}
+              />
+            </Route>
+            <Route path="/merge">
+              <MergeMaster />
+            </Route>
+          </Switch>
+        </section>
+        <Footer />
+      </div>
+    </Router>
   );
 };
 

@@ -37,6 +37,7 @@
     ]
   },
   "devDependencies": {
-    "fabric": "^4.6.0"
+    "fabric": "^4.6.0",
+    "react-router-dom": "^5.3.0"
   }
 }
