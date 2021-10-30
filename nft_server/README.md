@@ -41,3 +41,7 @@ py app.py
   [Requests](https://docs.python-requests.org/en/master/)
 - [Performing an HTTP Request in Python](https://www.datacamp.com/community/tutorials/making-http-requests-in-python)
 - [Python PIL | Image.save() method](https://www.geeksforgeeks.org/python-pil-image-save-method/)
+
+- [Encoding and Decoding Base64 Strings in Python](https://stackabuse.com/encoding-and-decoding-base64-strings-in-python/)
+
+https://careerkarma.com/blog/python-remove-character-from-string/

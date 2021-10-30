@@ -1,6 +1,11 @@
 import React from "react";
 
-const Header = ({ connect, merge }) => {
+const Header = ({ connect, merge, mergeLink, nftCount, connected }) => {
+  const mergeButton = () => {
+    if (nftCount > 1) {
+      return <button className="button is-primary">{mergeLink}</button>;
+    }
+  };
   return (
     <nav
       className="navbar is-flex is-justify-content-space-between"
@@ -8,7 +13,7 @@ const Header = ({ connect, merge }) => {
       aria-label="main navigation"
     >
       <div className="navbar-brand">
-        <a className="navbar-item" href="./index.html">
+        <a className="navbar-item" href="/">
           <img src="./startup-logo.png" alt="a really cool startup icon" />
         </a>
       </div>
@@ -16,11 +21,15 @@ const Header = ({ connect, merge }) => {
       <div className="navbar-end">
         <div className="navbar-item">
           <div className="buttons">
-            <button className="button is-primary" onClick={merge}>
-              <strong>Merge</strong>
-            </button>
+            {mergeButton()}
             <button className="button is-primary" onClick={connect}>
               <strong>Connect</strong>
+            </button>
+            <button className="button">
+              NFTs: <span className="ml-3">{nftCount}</span>
+            </button>
+            <button className="button">
+              Account: <span className="ml-3">{connected}</span>
             </button>
           </div>
         </div>

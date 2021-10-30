@@ -24,6 +24,12 @@ const App = () => {
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState(null);
   const [contract, setContract] = useState(null);
+  const [connected, setConnected] = useState(null);
+
+  const [nftCount, setNftCount] = useState(0);
+  const [nftData, setNftData] = useState([]);
+  const [nftCollection, setNftCollection] = useState([]);
+
   const [message, setMessage] = useState("Let's get started!");
   const [artistLevel, setArtistLevel] = useState(5);
   const [hackerLevel, setHackerLevel] = useState(5);
@@ -34,9 +40,9 @@ const App = () => {
     "Description missing."
   );
 
-  const [layer_1, setLayer_1] = useState("");
-  const [layer_2, setLayer_2] = useState("");
-  const [layer_3, setLayer_3] = useState("");
+  const [layer_1, setLayer_1] = useState("classical-artist_clothing.png");
+  const [layer_2, setLayer_2] = useState("classical-artist_face.png");
+  const [layer_3, setLayer_3] = useState("classical-artist_hair.png");
 
   const canvas = useCallback(() => {
     return new fabric.Canvas("canvas", {
@@ -98,10 +104,10 @@ const App = () => {
         StartupHeroCreator.abi,
         deployedNetwork && deployedNetwork.address
       );
-
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
+      setConnected(accounts[0]);
     }
 
     try {
@@ -115,6 +121,14 @@ const App = () => {
           Hustler[selectedPersona(hustlerLevel)].description
         )
       );
+
+      // const admin = async () => {
+      //   await contract.methods?.balanceOf(accounts[0]).call({
+      //     from: accounts[0],
+      //   });
+      // }
+
+      //console.log(contract);
     } catch (error) {
       setMessage(
         `Failed to load web3, accounts, or contract. Check console for details.`
@@ -168,6 +182,10 @@ const App = () => {
       setMessage(
         `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
       );
+      const nfts = await contract.methods?.balanceOf(accounts[0]).call({
+        from: accounts[0],
+      });
+      setNftCount(nfts);
     } else {
       setMessage("Something went wrong");
     }
@@ -198,58 +216,49 @@ const App = () => {
   };
 
   const connectClickHandler = async () => {
-    const response = await contract.methods?.admin().call({
-      from: accounts[0],
+    const nftBalance = await contract.methods?.balanceOf(connected).call({
+      from: connected,
     });
-    console.log(response);
+
+    let collection = [];
+    for (let index = 0; index < nftBalance; index++) {
+      let nfts = await contract.methods?.getToken(index).call({
+        from: connected,
+      });
+      let nftUri = await contract.methods?.tokenURI(nfts).call({
+        from: connected,
+      });
+      collection.push(nftUri);
+    }
+
+    if (nftBalance > 0) {
+      setNftCount(nftBalance);
+      setNftCollection(collection);
+      getNftData(collection);
+    }
   };
 
-  const mergeNfts = () => {
-    let requestOne = Axios.get(configuration.NFT_SERVER + "/nft/4");
-    let requestTwo = Axios.get(configuration.NFT_SERVER + "/nft/2");
-    let requestThree = Axios.get(configuration.NFT_SERVER + "/nft/12");
+  const getNftData = (collection) => {
+    const axiosRequest = collection.map((item) => {
+      return Axios.get(item);
+    });
 
-    Axios.all([requestOne, requestTwo, requestThree])
+    const data = Axios.all(axiosRequest)
       .then(
         Axios.spread((...responses) => {
-          let attrTotal = combineAttributes(responses);
-          setSuccessLevel(attrTotal.success);
-
-          console.log(attrTotal);
+          setNftData(responses);
         })
       )
       .catch((errors) => {
         // react on errors.
       });
-  };
-
-  const combineAttributes = (arr) => {
-    let size = arr.length;
-    let artistTotal = 0;
-    let hackerTotal = 0;
-    let hustlerTotal = 0;
-    let successTotal = size;
-
-    arr.forEach((item, index) => {
-      let data = item.data.attributes;
-      artistTotal += data.artist;
-      hackerTotal += data.hacker;
-      hustlerTotal += data.hustler;
-      successTotal += data.success;
-    });
-
-    return {
-      artist: Math.round(artistTotal / size),
-      hacker: Math.round(hackerTotal / size),
-      hustler: Math.round(hustlerTotal / size),
-      success: successTotal,
-    };
+    return data;
   };
 
   if (!web3) {
     return (
       <>
-        <Header connect={connectClickHandler} />
+        <Header connect={connectClickHandler} nftCount={nftCount} />
         <Hero
           title="Startup Hero Creator"
           subtitle="Generate a software developer NFT based on the traits of a startup."
@@ -259,10 +268,18 @@ const App = () => {
       </>
     );
   }
+
   return (
     <Router>
       <div className="App">
-        <Header connect={connectClickHandler} merge={mergeNfts} />
+        <Header
+          connect={connectClickHandler}
+          //merge={mergeNfts}
+          homeLink={<Link to="/"></Link>}
+          mergeLink={<Link to="/merge">Merge</Link>}
+          nftCount={nftCount}
+          connected={connected}
+        />
         <Hero
           title="Startup Hero Creator"
           subtitle="Generate a software developer NFT based on the traits of a startup."
@@ -295,7 +312,12 @@ const App = () => {
               />
             </Route>
             <Route path="/merge">
-              <MergeMaster />
+              <MergeMaster
+                configuration={configuration}
+                nftData={nftData}
+                nftCollection={nftCollection}
+                setSuccessLevel={setSuccessLevel}
+              />
             </Route>
           </Switch>
         </section>

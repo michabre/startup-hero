@@ -11,6 +11,8 @@ from os.path import join, dirname
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS, cross_origin
+from io import BytesIO
+
 
 load_dotenv(find_dotenv())
 
@@ -106,7 +108,14 @@ def showNft(tid):
   cursor.execute("SELECT * FROM nfts WHERE tid=?", (tid,))
   record = cursor.fetchone()
 
-  return render_template("image.html", image=record[9])
+  #return render_template("image.html", image=record[9])
+  img = record[9]
+
+  base64_img = img.replace('data:image/png;base64,','')
+  base64_img_bytes = base64_img.encode('utf-8')
+  with open('decoded_image.png', 'wb') as file_to_save:
+    decoded_image_data = base64.decodebytes(base64_img_bytes)
+    file_to_save.write(decoded_image_data)
 
 
 #
