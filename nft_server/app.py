@@ -83,7 +83,9 @@ def create():
     new_tid = request.form['tid']
     new_name = request.form['name']
     new_description = request.form['description']
-    new_image = url + '/nft/image/' + new_tid
+    # new_image = url + '/nft/image/' + new_tid
+    new_image = url + '/images/' + request.form['image']
+    image_name = request.form['image']
     att_hacker = request.form['hacker']
     att_artist = request.form['artist']
     att_hustler = request.form['hustler']
@@ -94,6 +96,13 @@ def create():
             VALUES (?,?,?,?,?,?,?,?,?)"""
     cursor = cursor.execute(sql, (new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, att_success, new_artwork))
     conn.commit()
+
+    base64_img = new_artwork.replace('data:image/png;base64,','')
+    base64_img_bytes = base64_img.encode('utf-8')
+    base64_img_name = image_name
+    with open("./images/" + base64_img_name, 'wb') as file_to_save:
+      decoded_image_data = base64.decodebytes(base64_img_bytes)
+      file_to_save.write(decoded_image_data)
 
     return  f"NFT with the id: {cursor.lastrowid} created successfully", 201
 
@@ -108,14 +117,16 @@ def showNft(tid):
   cursor.execute("SELECT * FROM nfts WHERE tid=?", (tid,))
   record = cursor.fetchone()
 
-  #return render_template("image.html", image=record[9])
-  img = record[9]
+  return render_template("image.html", image=record[9])
 
-  base64_img = img.replace('data:image/png;base64,','')
-  base64_img_bytes = base64_img.encode('utf-8')
-  with open('decoded_image.png', 'wb') as file_to_save:
-    decoded_image_data = base64.decodebytes(base64_img_bytes)
-    file_to_save.write(decoded_image_data)
+#
+#
+@app.route('/images/<str>', methods=['GET'])
+def showImage(str):
+  entry = os.path.join(url, str)
+  return send_file(str)
+
+  
 
 
 #

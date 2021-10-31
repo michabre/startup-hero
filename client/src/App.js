@@ -44,15 +44,23 @@ const App = () => {
   const [layer_2, setLayer_2] = useState("classical-artist_face.png");
   const [layer_3, setLayer_3] = useState("classical-artist_hair.png");
 
-  const canvas = useCallback(() => {
+  // const canvas = useCallback(() => {
+  //   console.log("canvas fired");
+
+  //   return new fabric.Canvas("canvas", {
+  //     height: 512,
+  //     width: 512,
+  //     backgroundColor: "pink",
+  //   });
+  // }, []);
+
+  const canvas = () => {
     return new fabric.Canvas("canvas", {
       height: 512,
       width: 512,
       backgroundColor: "pink",
     });
-  }, []);
-
-  let portrait = canvas();
+  };
 
   useEffect(() => {
     function addImage(canvas, char1, char2, char3) {
@@ -71,7 +79,6 @@ const App = () => {
                 configuration.IMAGES + char3,
                 function (img) {
                   let img3 = img.scale(1).set({ left: 0, top: 0 });
-
                   canvas.add(
                     new fabric.Group([base, img1, img2, img3], {
                       left: 0,
@@ -86,8 +93,9 @@ const App = () => {
       );
     }
 
+    let portrait = canvas();
     addImage(portrait, layer_1, layer_2, layer_3);
-  }, [portrait, layer_1, layer_2, layer_3]);
+  }, [canvas, layer_1, layer_2, layer_3]);
 
   useEffect(() => {
     async function fetchData() {
@@ -147,15 +155,17 @@ const App = () => {
     return shuffle(options).toString().replace(/,/g, " ");
   };
 
-  const sendToStorage = (tid, imgUrl) => {
+  const sendToStorage = (tid, imgUrl, hash) => {
     let img = document.getElementById("canvas");
     let url = configuration.NFT_SERVER + "/nft/create";
     let bodyFormData = new FormData();
+    let imgName = "startuphero_" + hash + ".png";
 
     bodyFormData.append("tid", tid);
     bodyFormData.append("name", characterName);
     bodyFormData.append("description", characterDescription);
-    bodyFormData.append("image", imgUrl);
+    bodyFormData.append("image", imgName);
+    //bodyFormData.append("image_name", imgName);
     bodyFormData.append("artist", artistLevel);
     bodyFormData.append("hacker", hackerLevel);
     bodyFormData.append("hustler", hustlerLevel);
@@ -178,7 +188,7 @@ const App = () => {
     if (response.status === true) {
       let nftMinted = response.events.NftMinted;
       let values = nftMinted.returnValues;
-      sendToStorage(values[0], values[1]);
+      sendToStorage(values[0], values[1], nftMinted.transactionHash);
       setMessage(
         `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
       );
