@@ -2,56 +2,35 @@ import React, { useEffect, useCallback } from "react";
 import Axios from "axios";
 
 import BuildNftList from "./Merge/BuildNftList";
+import NftCollection from "./Layout/NftCollection";
 
 const MergeMaster = ({
   configuration,
-  setSuccessLevel,
   nftData,
   setNftData,
   nftCollection,
+  selectedNfts,
+  setSuccessLevel,
+  cardClickHandler,
+  mergeCharacters,
 }) => {
-  //console.log("nftData", nftData);
+  const getNftData = (collection) => {
+    const axiosRequest = collection.map((item) => {
+      return Axios.get(item);
+    });
 
-  // const getNftData = (collection) => {
-  //   const axiosRequest = collection.map((item) => {
-  //     return Axios.get(item);
-  //   });
+    Axios.all(axiosRequest)
+      .then(
+        Axios.spread((...responses) => {
+          setNftData(responses);
+        })
+      )
+      .catch((errors) => {
+        // react on errors.
+      });
+  };
 
-  //   Axios.all(axiosRequest)
-  //     .then(
-  //       Axios.spread((...responses) => {
-  //         setNftData(responses);
-  //       })
-  //     )
-  //     .catch((errors) => {
-  //       // react on errors.
-  //     });
-  // };
-
-  // getNftData(nftCollection);
-
-  // const combineAttributes = (arr) => {
-  //   let size = arr.length;
-  //   let artistTotal = 0;
-  //   let hackerTotal = 0;
-  //   let hustlerTotal = 0;
-  //   let successTotal = size;
-
-  //   arr.forEach((item, index) => {
-  //     let data = item.data.attributes;
-  //     artistTotal += data.artist;
-  //     hackerTotal += data.hacker;
-  //     hustlerTotal += data.hustler;
-  //     successTotal += data.success;
-  //   });
-
-  //   return {
-  //     artist: Math.round(artistTotal / size),
-  //     hacker: Math.round(hackerTotal / size),
-  //     hustler: Math.round(hustlerTotal / size),
-  //     success: successTotal,
-  //   };
-  // };
+  getNftData(nftCollection);
 
   return (
     <div className="columns mt-0">
@@ -65,18 +44,18 @@ const MergeMaster = ({
 
           <div className="field">
             <label className="label">List of NFTs</label>
-            <ul>
-              {/* {[nftData].map((item, index) => {
-                return <li key={index}>{item}</li>;
-              })} */}
-              <BuildNftList data={nftData} />
-            </ul>
+            <BuildNftList data={nftData} selected={selectedNfts} />
+            <button className="button" onClick={mergeCharacters}>
+              Merge Characters
+            </button>
           </div>
 
           {/* <button className="button" onClick={nftsCollected}>Get Collection</button> */}
         </div>
       </div>
-      <div id="merge-characters" className="column"></div>
+      <div id="merge-characters" className="column">
+        <NftCollection data={nftData} cardClickHandler={cardClickHandler} />
+      </div>
     </div>
   );
 };

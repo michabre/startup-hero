@@ -29,6 +29,7 @@ const App = () => {
   const [nftCount, setNftCount] = useState(0);
   const [nftData, setNftData] = useState([]);
   const [nftCollection, setNftCollection] = useState([]);
+  const [selectedNfts, setSelectedNfts] = useState([]);
 
   const [message, setMessage] = useState("Let's get started!");
   const [artistLevel, setArtistLevel] = useState(5);
@@ -155,7 +156,7 @@ const App = () => {
     return shuffle(options).toString().replace(/,/g, " ");
   };
 
-  const sendToStorage = (tid, imgUrl, hash) => {
+  const sendToStorage = (tid, hash) => {
     let img = document.getElementById("canvas");
     let url = configuration.NFT_SERVER + "/nft/create";
     let bodyFormData = new FormData();
@@ -165,7 +166,6 @@ const App = () => {
     bodyFormData.append("name", characterName);
     bodyFormData.append("description", characterDescription);
     bodyFormData.append("image", imgName);
-    //bodyFormData.append("image_name", imgName);
     bodyFormData.append("artist", artistLevel);
     bodyFormData.append("hacker", hackerLevel);
     bodyFormData.append("hustler", hustlerLevel);
@@ -188,7 +188,7 @@ const App = () => {
     if (response.status === true) {
       let nftMinted = response.events.NftMinted;
       let values = nftMinted.returnValues;
-      sendToStorage(values[0], values[1], nftMinted.transactionHash);
+      sendToStorage(values[0], nftMinted.transactionHash);
       setMessage(
         `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
       );
@@ -265,6 +265,55 @@ const App = () => {
     return data;
   };
 
+  const cardClickHandler = (e) => {
+    let item = e.target;
+    item.style.backgroundColor = "rgba(0,0,0,0)";
+    let nft = item.getAttribute("data-index");
+    if (selectedNfts.includes(nft)) {
+      return;
+    }
+    removeExtraElements(selectedNfts, 1);
+    setSelectedNfts([...selectedNfts, nft]);
+  };
+
+  const removeExtraElements = (arr, max) => {
+    while (arr.length > max) {
+      arr.shift();
+      console.log(arr.length);
+    }
+  };
+
+  const mergeCharacters = () => {
+    console.log("let the merge begin");
+    let characters = selectedNfts.map((element) => {
+      return nftData[element].data.attributes;
+    });
+    let newAttributes = combineAttributes(characters);
+    console.log(newAttributes);
+  };
+
+  const combineAttributes = (arr) => {
+    let size = arr.length;
+    let artistTotal = 0;
+    let hackerTotal = 0;
+    let hustlerTotal = 0;
+    let successTotal = size;
+
+    arr.forEach((item) => {
+      artistTotal += item.artist;
+      hackerTotal += item.hacker;
+      hustlerTotal += item.hustler;
+      successTotal += item.success;
+    });
+
+    return {
+      artist: Math.round(artistTotal / size),
+      hacker: Math.round(hackerTotal / size),
+      hustler: Math.round(hustlerTotal / size),
+      success: successTotal,
+    };
+  };
+
   if (!web3) {
     return (
       <>
@@ -326,7 +375,10 @@ const App = () => {
                 configuration={configuration}
                 nftData={nftData}
                 nftCollection={nftCollection}
+                selectedNfts={selectedNfts}
                 setSuccessLevel={setSuccessLevel}
+                cardClickHandler={cardClickHandler}
+                mergeCharacters={mergeCharacters}
               />
             </Route>
           </Switch>

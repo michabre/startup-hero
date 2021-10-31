@@ -123,8 +123,8 @@ def showNft(tid):
 #
 @app.route('/images/<str>', methods=['GET'])
 def showImage(str):
-  entry = os.path.join(url, str)
-  return send_file(str)
+  img = "images/" + str
+  return send_file(img)
 
   
 
