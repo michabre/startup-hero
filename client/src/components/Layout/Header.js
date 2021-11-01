@@ -1,9 +1,13 @@
 import React from "react";
 
-const Header = ({ connect, merge, mergeLink, nftCount, connected }) => {
-  const mergeButton = () => {
+const Header = ({ connect, mergeLink, nftCount, connected, test }) => {
+  const viewCollectionButton = () => {
     if (nftCount > 1) {
-      return <button className="button is-primary">{mergeLink}</button>;
+      return (
+        <button className="button is-primary" onClick={test}>
+          {mergeLink}
+        </button>
+      );
     }
   };
   return (
@@ -21,14 +25,14 @@ const Header = ({ connect, merge, mergeLink, nftCount, connected }) => {
       <div className="navbar-end">
         <div className="navbar-item">
           <div className="buttons">
-            {mergeButton()}
+            {viewCollectionButton()}
             <button className="button is-primary" onClick={connect}>
               <strong>Connect</strong>
             </button>
-            <button className="button">
-              NFTs: <span className="ml-3">{nftCount}</span>
+            <button className="button is-link is-inverted is-outlined">
+              NFTs: <span className="ml-3 ">{nftCount}</span>
             </button>
-            <button className="button">
+            <button className="button is-link is-inverted is-outlined">
               Account: <span className="ml-3">{connected}</span>
             </button>
           </div>

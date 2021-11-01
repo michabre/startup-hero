@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Axios from "axios";
 import parse from "html-react-parser";
@@ -44,16 +44,6 @@ const App = () => {
   const [layer_1, setLayer_1] = useState("classical-artist_clothing.png");
   const [layer_2, setLayer_2] = useState("classical-artist_face.png");
   const [layer_3, setLayer_3] = useState("classical-artist_hair.png");
-
-  // const canvas = useCallback(() => {
-  //   console.log("canvas fired");
-
-  //   return new fabric.Canvas("canvas", {
-  //     height: 512,
-  //     width: 512,
-  //     backgroundColor: "pink",
-  //   });
-  // }, []);
 
   const canvas = () => {
     return new fabric.Canvas("canvas", {
@@ -113,10 +103,33 @@ const App = () => {
         StartupHeroCreator.abi,
         deployedNetwork && deployedNetwork.address
       );
+
+      const nftBalance = await instance.methods?.balanceOf(accounts[0]).call({
+        from: accounts[0],
+      });
+
+      let collection = [];
+      for (let index = 0; index < nftBalance; index++) {
+        let nfts = await instance.methods?.getToken(index).call({
+          from: accounts[0],
+        });
+        let nftUri = await instance.methods?.tokenURI(nfts).call({
+          from: accounts[0],
+        });
+        collection.push(nftUri);
+      }
+
+      if (nftBalance > 0) {
+        setNftCollection(collection);
+        getNftData(collection);
+        console.log(collection);
+      }
+
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
       setConnected(accounts[0]);
+      setNftCount(nftBalance);
     }
 
     try {
@@ -131,13 +144,7 @@ const App = () => {
         )
       );
 
-      // const admin = async () => {
-      //   await contract.methods?.balanceOf(accounts[0]).call({
-      //     from: accounts[0],
-      //   });
-      // }
-
-      //console.log(contract);
+      //console.log("useEffect called");
     } catch (error) {
       setMessage(
         `Failed to load web3, accounts, or contract. Check console for details.`
@@ -227,12 +234,8 @@ const App = () => {
   };
 
   const connectClickHandler = async () => {
-    const nftBalance = await contract.methods?.balanceOf(connected).call({
-      from: connected,
-    });
-
     let collection = [];
-    for (let index = 0; index < nftBalance; index++) {
+    for (let index = 0; index < nftCount; index++) {
       let nfts = await contract.methods?.getToken(index).call({
         from: connected,
       });
@@ -242,8 +245,7 @@ const App = () => {
       collection.push(nftUri);
     }
 
-    if (nftBalance > 0) {
-      setNftCount(nftBalance);
+    if (nftCount > 0) {
       setNftCollection(collection);
       getNftData(collection);
     }
@@ -363,6 +365,10 @@ const App = () => {
     };
   };
 
+  const testHandler = (e) => {
+    console.log(e.target);
+  };
+
   if (!web3) {
     return (
       <>
@@ -382,11 +388,11 @@ const App = () => {
       <div className="App">
         <Header
           connect={connectClickHandler}
-          //merge={mergeNfts}
           homeLink={<Link to="/"></Link>}
-          mergeLink={<Link to="/merge">Merge</Link>}
+          mergeLink={<Link to="/collection">View Collection</Link>}
           nftCount={nftCount}
           connected={connected}
+          test={testHandler}
         />
         <Hero
           title="Startup Hero Creator"
@@ -419,7 +425,7 @@ const App = () => {
                 mintCanvas={mintCanvas}
               />
             </Route>
-            <Route path="/merge">
+            <Route path="/collection">
               <MergeMaster
                 configuration={configuration}
                 nftData={nftData}
