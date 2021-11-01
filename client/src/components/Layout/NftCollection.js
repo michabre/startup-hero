@@ -44,7 +44,7 @@ const NftCollection = ({ data, cardClickHandler }) => {
                   </span>
                 </div>
               </div>
-              <label>Success</label>
+              <label className="label">Success</label>
               <progress
                 className="progress"
                 value={element.data.attributes.success}

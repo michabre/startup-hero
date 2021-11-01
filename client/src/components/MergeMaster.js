@@ -14,6 +14,10 @@ const MergeMaster = ({
   cardClickHandler,
   mergeCharacters,
 }) => {
+  useEffect(() => {
+    console.log("merge master updated");
+  }, []);
+
   const getNftData = (collection) => {
     const axiosRequest = collection.map((item) => {
       return Axios.get(item);
@@ -30,6 +34,20 @@ const MergeMaster = ({
       });
   };
 
+  const mergeButton = (handler, nfts) => {
+    if (nfts.length > 0) {
+      return (
+        <button
+          className="button is-info is-large is-fullwidth"
+          onClick={handler}
+        >
+          Merge Characters
+        </button>
+      );
+    }
+    return;
+  };
+
   getNftData(nftCollection);
 
   return (
@@ -39,11 +57,9 @@ const MergeMaster = ({
 
         <div className="traits is-shady">
           <div className="field">
-            <label className="label">Selected NFTs to Merge</label>
+            <label className="label">Select 2 NFTs to Merge</label>
             <BuildNftList data={nftData} selected={selectedNfts} />
-            <button className="button" onClick={mergeCharacters}>
-              Merge Characters
-            </button>
+            {mergeButton(mergeCharacters, selectedNfts)}
           </div>
         </div>
       </div>
