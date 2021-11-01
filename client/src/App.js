@@ -156,11 +156,11 @@ const App = () => {
     return shuffle(options).toString().replace(/,/g, " ");
   };
 
-  const sendToStorage = (tid, hash) => {
+  const sendToStorage = (tid, imgName, type) => {
     let img = document.getElementById("canvas");
-    let url = configuration.NFT_SERVER + "/nft/create";
+    let url = configuration.NFT_SERVER + "/nft/" + type;
     let bodyFormData = new FormData();
-    let imgName = "startuphero_" + hash + ".png";
+    let artwork = !img ? "No artwork" : img.toDataURL();
 
     bodyFormData.append("tid", tid);
     bodyFormData.append("name", characterName);
@@ -170,7 +170,7 @@ const App = () => {
     bodyFormData.append("hacker", hackerLevel);
     bodyFormData.append("hustler", hustlerLevel);
     bodyFormData.append("success", successLevel);
-    bodyFormData.append("artwork", img.toDataURL());
+    bodyFormData.append("artwork", artwork);
 
     Axios({
       method: "post",
@@ -188,7 +188,8 @@ const App = () => {
     if (response.status === true) {
       let nftMinted = response.events.NftMinted;
       let values = nftMinted.returnValues;
-      sendToStorage(values[0], nftMinted.transactionHash);
+      let img = "startuphero_" + nftMinted.transactionHash + ".png";
+      sendToStorage(values[0], img, "create");
       setMessage(
         `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
       );
@@ -267,29 +268,77 @@ const App = () => {
 
   const cardClickHandler = (e) => {
     let item = e.target;
-    item.style.backgroundColor = "rgba(0,0,0,0)";
     let nft = item.getAttribute("data-index");
     if (selectedNfts.includes(nft)) {
       return;
+      //item.style.backgroundColor = "rgba(0, 0, 0, 0)";
+    } else {
+      //item.style.backgroundColor = "rgba(0,0,0,0.3)";
+      removeExtraElements(selectedNfts, 1);
+      setSelectedNfts([...selectedNfts, nft]);
     }
-    removeExtraElements(selectedNfts, 1);
-    setSelectedNfts([...selectedNfts, nft]);
   };
 
   const removeExtraElements = (arr, max) => {
     while (arr.length > max) {
       arr.shift();
-      console.log(arr.length);
     }
   };
 
-  const mergeCharacters = () => {
-    console.log("let the merge begin");
+  const mergeCharacters = async () => {
+    let random = Math.round(Math.random() * 1);
+    let randomlyChosenDefault = selectedNfts[random];
     let characters = selectedNfts.map((element) => {
       return nftData[element].data.attributes;
     });
     let newAttributes = combineAttributes(characters);
-    console.log(newAttributes);
+
+    const response = await contract.methods?.mint(accounts[0]).send({
+      from: accounts[0],
+    });
+
+    if (response.status === true) {
+      let nftMinted = response.events.NftMinted;
+      let values = nftMinted.returnValues;
+
+      let url = configuration.NFT_SERVER + "/nft/merge";
+      let bodyFormData = new FormData();
+
+      bodyFormData.append("tid", values[0]);
+      bodyFormData.append(
+        "name",
+        `${nftData[selectedNfts[0]].data.name} ${
+          nftData[selectedNfts[1]].data.name
+        }`
+      );
+      bodyFormData.append(
+        "description",
+        nftData[randomlyChosenDefault].data.description
+      );
+      bodyFormData.append("image", nftData[randomlyChosenDefault].data.image);
+      bodyFormData.append("artist", newAttributes.artist);
+      bodyFormData.append("hacker", newAttributes.hacker);
+      bodyFormData.append("hustler", newAttributes.hustler);
+      bodyFormData.append("success", newAttributes.success);
+      bodyFormData.append("artwork", "No artwork");
+
+      Axios({
+        method: "post",
+        url: url,
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" },
+      }).then((response) => console.log(response.data));
+
+      setMessage(
+        `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
+      );
+      const nfts = await contract.methods?.balanceOf(accounts[0]).call({
+        from: accounts[0],
+      });
+      setNftCount(nfts);
+    } else {
+      setMessage("Something went wrong");
+    }
   };
 
   const combineAttributes = (arr) => {
@@ -307,9 +356,9 @@ const App = () => {
     });
 
     return {
-      artist: Math.round(artistTotal / size),
-      hacker: Math.round(hackerTotal / size),
-      hustler: Math.round(hustlerTotal / size),
+      artist: artistTotal,
+      hacker: hackerTotal,
+      hustler: hustlerTotal,
       success: successTotal,
     };
   };

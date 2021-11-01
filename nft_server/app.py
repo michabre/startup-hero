@@ -83,7 +83,6 @@ def create():
     new_tid = request.form['tid']
     new_name = request.form['name']
     new_description = request.form['description']
-    # new_image = url + '/nft/image/' + new_tid
     new_image = url + '/images/' + request.form['image']
     image_name = request.form['image']
     att_hacker = request.form['hacker']
@@ -103,6 +102,34 @@ def create():
     with open("./images/" + base64_img_name, 'wb') as file_to_save:
       decoded_image_data = base64.decodebytes(base64_img_bytes)
       file_to_save.write(decoded_image_data)
+
+    return  f"NFT with the id: {cursor.lastrowid} created successfully", 201
+
+#
+# Merge NFTs sent via POST
+#
+@app.route("/nft/merge", methods=["POST"])
+@cross_origin()
+def merge():
+
+  conn = db_connection()
+  cursor = conn.cursor()
+
+  if request.method == 'POST':
+    new_tid = request.form['tid']
+    new_name = request.form['name']
+    new_description = request.form['description']
+    new_image = request.form['image']
+    att_hacker = request.form['hacker']
+    att_artist = request.form['artist']
+    att_hustler = request.form['hustler']
+    att_success = request.form['success']
+    new_artwork = request.form['artwork']
+
+    sql = """INSERT INTO nfts (tid, name, description, image, hacker, artist, hustler, success, artwork)
+            VALUES (?,?,?,?,?,?,?,?,?)"""
+    cursor = cursor.execute(sql, (new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, att_success, new_artwork))
+    conn.commit()
 
     return  f"NFT with the id: {cursor.lastrowid} created successfully", 201
 

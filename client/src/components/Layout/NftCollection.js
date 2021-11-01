@@ -47,7 +47,7 @@ const NftCollection = ({ data, cardClickHandler }) => {
               <label>Success</label>
               <progress
                 className="progress"
-                value="{element.data.attributes.success}"
+                value={element.data.attributes.success}
                 max="100"
               >
                 15%

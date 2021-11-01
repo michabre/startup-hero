@@ -39,18 +39,12 @@ const MergeMaster = ({
 
         <div className="traits is-shady">
           <div className="field">
-            <label className="label">Name</label>
-          </div>
-
-          <div className="field">
-            <label className="label">List of NFTs</label>
+            <label className="label">Selected NFTs to Merge</label>
             <BuildNftList data={nftData} selected={selectedNfts} />
             <button className="button" onClick={mergeCharacters}>
               Merge Characters
             </button>
           </div>
-
-          {/* <button className="button" onClick={nftsCollected}>Get Collection</button> */}
         </div>
       </div>
       <div id="merge-characters" className="column">
