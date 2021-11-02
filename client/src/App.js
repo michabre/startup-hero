@@ -24,7 +24,7 @@ const App = () => {
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState(null);
   const [contract, setContract] = useState(null);
-  const [connected, setConnected] = useState(null);
+  const [connected, setConnected] = useState("No account connected");
 
   const [nftCount, setNftCount] = useState(0);
   const [nftData, setNftData] = useState([]);
@@ -122,14 +122,13 @@ const App = () => {
       if (nftBalance > 0) {
         setNftCollection(collection);
         getNftData(collection);
-        console.log(collection);
+        setNftCount(nftBalance);
       }
 
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
       setConnected(accounts[0]);
-      setNftCount(nftBalance);
     }
 
     try {
@@ -167,7 +166,7 @@ const App = () => {
     let img = document.getElementById("canvas");
     let url = configuration.NFT_SERVER + "/nft/" + type;
     let bodyFormData = new FormData();
-    let artwork = !img ? "No artwork" : img.toDataURL();
+    let artwork = img.toDataURL();
 
     bodyFormData.append("tid", tid);
     bodyFormData.append("name", characterName);
@@ -188,7 +187,7 @@ const App = () => {
   };
 
   const mintCanvas = async () => {
-    const response = await contract.methods?.mint(accounts[0]).send({
+    const response = await contract.methods.mint(accounts[0]).send({
       from: accounts[0],
     });
 
@@ -196,6 +195,7 @@ const App = () => {
       let nftMinted = response.events.NftMinted;
       let values = nftMinted.returnValues;
       let img = "startuphero_" + nftMinted.transactionHash + ".png";
+
       sendToStorage(values[0], img, "create");
       setMessage(
         `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
@@ -290,14 +290,23 @@ const App = () => {
   const mergeCharacters = async () => {
     let random = Math.round(Math.random() * 1);
     let randomlyChosenDefault = selectedNfts[random];
-    let characters = selectedNfts.map((element) => {
+    let attributes = selectedNfts.map((element) => {
       return nftData[element].data.attributes;
     });
-    let newAttributes = combineAttributes(characters);
+    let newAttributes = combineAttributes(attributes);
 
-    const response = await contract.methods?.mint(accounts[0]).send({
-      from: accounts[0],
-    });
+    //console.log(parseInt(selectedNfts[0]), parseInt(selectedNfts[1]));
+
+    let burn1 = parseInt(selectedNfts[0]);
+    let burn2 = parseInt(selectedNfts[1]);
+
+    const response = await contract.methods
+      ?.merge(accounts[0], burn1, burn2)
+      .send({
+        from: accounts[0],
+      });
+
+    console.log(response);
 
     if (response.status === true) {
       let nftMinted = response.events.NftMinted;
@@ -365,21 +374,21 @@ const App = () => {
     };
   };
 
-  const testHandler = (e) => {
-    console.log(e.target);
-  };
-
   if (!web3) {
     return (
-      <>
-        <Header connect={connectClickHandler} nftCount={nftCount} />
+      <div className="App">
+        <Header
+          connect={connectClickHandler}
+          nftCount={nftCount}
+          connected={connected}
+        />
         <Hero
           title="Startup Hero Creator"
           subtitle="Generate a software developer NFT based on the traits of a startup."
         />
         <Loading />
         <Footer />
-      </>
+      </div>
     );
   }
 
@@ -392,7 +401,6 @@ const App = () => {
           mergeLink={<Link to="/collection">View Collection</Link>}
           nftCount={nftCount}
           connected={connected}
-          test={testHandler}
         />
         <Hero
           title="Startup Hero Creator"

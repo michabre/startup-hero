@@ -1,16 +1,14 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import Axios from "axios";
 
 import BuildNftList from "./Merge/BuildNftList";
 import NftCollection from "./Layout/NftCollection";
 
 const MergeMaster = ({
-  configuration,
   nftData,
   setNftData,
   nftCollection,
   selectedNfts,
-  setSuccessLevel,
   cardClickHandler,
   mergeCharacters,
 }) => {
