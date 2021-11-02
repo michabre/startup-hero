@@ -11,6 +11,7 @@ const MergeMaster = ({
   selectedNfts,
   cardClickHandler,
   mergeCharacters,
+  burnHandler,
 }) => {
   useEffect(() => {
     console.log("merge master updated");
@@ -58,6 +59,15 @@ const MergeMaster = ({
             <label className="label">Select 2 NFTs to Merge</label>
             <BuildNftList data={nftData} selected={selectedNfts} />
             {mergeButton(mergeCharacters, selectedNfts)}
+          </div>
+          <div className="field">
+            <label className="label">Burn Test</label>
+            <button
+              className="button is-danger is-fullwidth"
+              onClick={burnHandler}
+            >
+              Burn
+            </button>
           </div>
         </div>
       </div>

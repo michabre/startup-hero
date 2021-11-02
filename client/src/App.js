@@ -294,19 +294,12 @@ const App = () => {
       return nftData[element].data.attributes;
     });
     let newAttributes = combineAttributes(attributes);
+    // let burn1 = parseInt(selectedNfts[0]);
+    // let burn2 = parseInt(selectedNfts[1]);
 
-    //console.log(parseInt(selectedNfts[0]), parseInt(selectedNfts[1]));
-
-    let burn1 = parseInt(selectedNfts[0]);
-    let burn2 = parseInt(selectedNfts[1]);
-
-    const response = await contract.methods
-      ?.merge(accounts[0], burn1, burn2)
-      .send({
-        from: accounts[0],
-      });
-
-    console.log(response);
+    const response = await contract.methods?.mint(accounts[0]).send({
+      from: accounts[0],
+    });
 
     if (response.status === true) {
       let nftMinted = response.events.NftMinted;
@@ -372,6 +365,15 @@ const App = () => {
       hustler: hustlerTotal,
       success: successTotal,
     };
+  };
+
+  const burnHandler = async () => {
+    console.log("burn this");
+    const response = await contract.methods?.burn(2, 1, 1, 1, 0).send({
+      from: accounts[0],
+    });
+
+    console.log(response);
   };
 
   if (!web3) {
@@ -442,6 +444,7 @@ const App = () => {
                 setSuccessLevel={setSuccessLevel}
                 cardClickHandler={cardClickHandler}
                 mergeCharacters={mergeCharacters}
+                burnHandler={burnHandler}
               />
             </Route>
           </Switch>
