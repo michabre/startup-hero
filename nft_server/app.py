@@ -6,12 +6,10 @@ import requests
 import base64
 import urllib.request
 
-from PIL import Image
 from os.path import join, dirname
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS, cross_origin
-from io import BytesIO
 
 
 load_dotenv(find_dotenv())

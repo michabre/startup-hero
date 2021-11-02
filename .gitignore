@@ -10,5 +10,5 @@ node_modules
 __pycache__
 *.cfg
 Lib
-/nft_server/Scripts
+Scripts
 
