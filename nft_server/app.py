@@ -21,6 +21,7 @@ url = os.getenv("SITE_URL")
 db = os.getenv("DB")
 
 #
+# Store data in a Sqlite database
 #
 def db_connection():
   conn = None
@@ -31,6 +32,7 @@ def db_connection():
   return conn
 
 #
+# Landing Page
 #
 @app.route('/')
 def index():
@@ -40,7 +42,7 @@ def index():
     subtitle='A simple Flask app for managing NFT metadata')
 
 #
-# Get Metadata based on TokenId
+# Returns Metadata of JSON based on the TokenId
 #
 @app.route('/nft/<int:tid>', methods=['GET'])
 def nft(tid):
@@ -68,7 +70,7 @@ def nft(tid):
       subtitle='Could not find the NFT you are looking for.'), 404
 
 #
-# Get Collection
+# Return a JSON list of all TokenIds
 #
 @app.route('/nft/collection', methods=['GET'])
 def nftCollection():
@@ -120,6 +122,7 @@ def create():
     base64_img = new_artwork.replace('data:image/png;base64,','')
     base64_img_bytes = base64_img.encode('utf-8')
     base64_img_name = image_name
+
     with open("./images/" + base64_img_name, 'wb') as file_to_save:
       decoded_image_data = base64.decodebytes(base64_img_bytes)
       file_to_save.write(decoded_image_data)
@@ -168,6 +171,7 @@ def showNft(tid):
   return render_template("image.html", image=record[9])
 
 #
+# Render an image file
 #
 @app.route('/images/<str>', methods=['GET'])
 def showImage(str):
@@ -189,8 +193,6 @@ def delete():
     conn.commit()
 
     return  f"NFT has been deleted", 201
-
-
 
 #
 #
