@@ -30,6 +30,9 @@ const App = () => {
   const [nftData, setNftData] = useState([]);
   const [nftCollection, setNftCollection] = useState([]);
   const [selectedNfts, setSelectedNfts] = useState([]);
+  const [nftIds, setNftIds] = useState([]);
+
+  const [burnSelection, setBurnSelection] = useState("none");
 
   const [message, setMessage] = useState("Let's get started!");
   const [artistLevel, setArtistLevel] = useState(5);
@@ -108,21 +111,15 @@ const App = () => {
         from: accounts[0],
       });
 
-      let collection = [];
-      for (let index = 0; index < nftBalance; index++) {
-        let nfts = await instance.methods?.getToken(index).call({
-          from: accounts[0],
-        });
-        let nftUri = await instance.methods?.tokenURI(nfts).call({
-          from: accounts[0],
-        });
-        collection.push(nftUri);
-      }
+      const nftTids = await Axios.get(
+        configuration.NFT_SERVER + "/nft/collection"
+      ).then(function (response) {
+        return response.data?.tids;
+      });
 
       if (nftBalance > 0) {
-        setNftCollection(collection);
-        getNftData(collection);
         setNftCount(nftBalance);
+        setNftIds(nftTids);
       }
 
       setWeb3(web3);
@@ -142,15 +139,13 @@ const App = () => {
           Hustler[selectedPersona(hustlerLevel)].description
         )
       );
-
-      //console.log("useEffect called");
     } catch (error) {
       setMessage(
         `Failed to load web3, accounts, or contract. Check console for details.`
       );
       console.log(error);
     }
-  }, [artistLevel, hackerLevel, hustlerLevel]);
+  }, [artistLevel, hackerLevel, hustlerLevel, nftIds]);
 
   const updateName = (e) => {
     setCharacterName(e.target.value);
@@ -234,18 +229,17 @@ const App = () => {
   };
 
   const connectClickHandler = async () => {
+    console.log(nftIds);
+    let count = nftIds.length;
     let collection = [];
-    for (let index = 0; index < nftCount; index++) {
-      let nfts = await contract.methods?.getToken(index).call({
-        from: connected,
-      });
-      let nftUri = await contract.methods?.tokenURI(nfts).call({
+    for (let index = 0; index < count; index++) {
+      let nftUri = await contract.methods?.tokenURI(nftIds[index]).call({
         from: connected,
       });
       collection.push(nftUri);
     }
 
-    if (nftCount > 0) {
+    if (count > 0) {
       setNftCollection(collection);
       getNftData(collection);
     }
@@ -294,9 +288,6 @@ const App = () => {
       return nftData[element].data.attributes;
     });
     let newAttributes = combineAttributes(attributes);
-    // let burn1 = parseInt(selectedNfts[0]);
-    // let burn2 = parseInt(selectedNfts[1]);
-
     const response = await contract.methods?.mint(accounts[0]).send({
       from: accounts[0],
     });
@@ -350,7 +341,7 @@ const App = () => {
     let artistTotal = 0;
     let hackerTotal = 0;
     let hustlerTotal = 0;
-    let successTotal = size;
+    let successTotal = 1;
 
     arr.forEach((item) => {
       artistTotal += item.artist;
@@ -360,20 +351,41 @@ const App = () => {
     });
 
     return {
-      artist: artistTotal,
-      hacker: hackerTotal,
-      hustler: hustlerTotal,
+      artist: artistTotal / size,
+      hacker: hackerTotal / size,
+      hustler: hustlerTotal / size,
       success: successTotal,
     };
   };
 
   const burnHandler = async () => {
-    console.log("burn this");
-    const response = await contract.methods?.burn(2, 1, 1, 1, 0).send({
-      from: accounts[0],
-    });
+    if (burnSelection !== "none") {
+      const data = nftData[burnSelection].data;
+      const attributes = data.attributes;
+      const tid = data.tid;
+      const response = await contract.methods
+        ?.burn(
+          tid,
+          attributes.artist,
+          attributes.hacker,
+          attributes.hustler,
+          attributes.success
+        )
+        .send({
+          from: accounts[0],
+        });
+      console.log(response);
 
-    console.log(response);
+      let url = configuration.NFT_SERVER + "/nft/delete";
+      let bodyFormData = new FormData();
+      bodyFormData.append("tid", tid);
+      Axios({
+        method: "post",
+        url: url,
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" },
+      }).then((response) => console.log(response.data));
+    }
   };
 
   if (!web3) {
@@ -439,12 +451,15 @@ const App = () => {
               <MergeMaster
                 configuration={configuration}
                 nftData={nftData}
+                nftTids={nftIds}
                 nftCollection={nftCollection}
                 selectedNfts={selectedNfts}
                 setSuccessLevel={setSuccessLevel}
                 cardClickHandler={cardClickHandler}
                 mergeCharacters={mergeCharacters}
                 burnHandler={burnHandler}
+                burnSelection={burnSelection}
+                setBurnSelection={setBurnSelection}
               />
             </Route>
           </Switch>

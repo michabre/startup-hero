@@ -68,6 +68,29 @@ def nft(tid):
       subtitle='Could not find the NFT you are looking for.'), 404
 
 #
+# Get Collection
+#
+@app.route('/nft/collection', methods=['GET'])
+def nftCollection():
+  conn = db_connection()
+  cursor = conn.cursor()
+  sql = """SELECT * FROM nfts WHERE tid IS NOT NULL"""
+  cursor.execute(sql)
+  records = cursor.fetchall()
+  tids = [];
+
+  for row in records:
+    tids.append(row[1])
+  
+  cursor.close()
+  conn.commit()
+
+  return jsonify(
+    tids=tids
+    ), 200
+    
+
+#
 # Record a newly minted NFT sent via POST
 #
 @app.route("/nft/create", methods=["POST"])
@@ -151,7 +174,22 @@ def showImage(str):
   img = "images/" + str
   return send_file(img)
 
-  
+
+#
+# Delete an NFT
+#
+@app.route("/nft/delete", methods=["POST"])
+@cross_origin()
+def delete():
+  conn = db_connection()
+  cursor = conn.cursor()
+  if request.method == 'POST':
+    burn_tid = request.form['tid']
+    cursor.execute("DELETE FROM nfts WHERE tid=?", (burn_tid))
+    conn.commit()
+
+    return  f"NFT has been deleted", 201
+
 
 
 #

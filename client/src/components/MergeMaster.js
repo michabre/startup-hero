@@ -7,32 +7,15 @@ import NftCollection from "./Layout/NftCollection";
 const MergeMaster = ({
   nftData,
   setNftData,
+  nftTids,
   nftCollection,
   selectedNfts,
   cardClickHandler,
   mergeCharacters,
   burnHandler,
+  burnSelection,
+  setBurnSelection,
 }) => {
-  useEffect(() => {
-    console.log("merge master updated");
-  }, []);
-
-  const getNftData = (collection) => {
-    const axiosRequest = collection.map((item) => {
-      return Axios.get(item);
-    });
-
-    Axios.all(axiosRequest)
-      .then(
-        Axios.spread((...responses) => {
-          setNftData(responses);
-        })
-      )
-      .catch((errors) => {
-        // react on errors.
-      });
-  };
-
   const mergeButton = (handler, nfts) => {
     if (nfts.length > 0) {
       return (
@@ -47,8 +30,6 @@ const MergeMaster = ({
     return;
   };
 
-  getNftData(nftCollection);
-
   return (
     <div className="columns mt-0">
       <div className="column is-one-quarter">
@@ -62,6 +43,16 @@ const MergeMaster = ({
           </div>
           <div className="field">
             <label className="label">Burn Test</label>
+            <div className="select mb-3 is-fullwidth">
+              <select onChange={(e) => setBurnSelection(e.target.value)}>
+                <option value="none">Select Character to Burn</option>
+                {nftData.map((item, index) => (
+                  <option key={index} value={index}>
+                    {item.data.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button
               className="button is-danger is-fullwidth"
               onClick={burnHandler}

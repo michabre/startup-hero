@@ -14,9 +14,9 @@ contract StartupHeroCreator is ERC721 {
     uint8 hustler;
     uint8 success;
   }
-  mapping(address => attributes) public userStoredAttributes;
-    
+  mapping(address => attributes) public userStoredAttributes;    
   mapping(address => uint256[]) private userOwnedTokens;
+
   address public admin;
 
   constructor() ERC721('Startup Hero', 'SUP') {
@@ -61,7 +61,9 @@ contract StartupHeroCreator is ERC721 {
     userStoredAttributes[msg.sender].artist += _artist;
     userStoredAttributes[msg.sender].hacker += _hacker;
     userStoredAttributes[msg.sender].hustler += _hustler;
-    userStoredAttributes[msg.sender].success += _success + 1;
+    userStoredAttributes[msg.sender].success += _success;
+    //delete userOwnedTokens[msg.sender][tokenId];
+
     _burn(tokenId);
   }
 
