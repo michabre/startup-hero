@@ -3,7 +3,11 @@ import React from "react";
 const Header = ({ connect, mergeLink, nftCount, connected }) => {
   const viewCollectionButton = () => {
     if (nftCount > 0) {
-      return <button className="button is-primary">{mergeLink}</button>;
+      return (
+        <button className="button is-primary" onClick={connect}>
+          {mergeLink}
+        </button>
+      );
     }
   };
 
@@ -23,15 +27,11 @@ const Header = ({ connect, mergeLink, nftCount, connected }) => {
         <div className="navbar-item">
           <div className="buttons">
             {viewCollectionButton()}
-
             <button className="button is-link is-inverted is-outlined">
               NFTs: <span className="ml-3 ">{nftCount}</span>
             </button>
             <button className="button is-link is-inverted is-outlined">
               Account: <span className="ml-3">{connected}</span>
-            </button>
-            <button className="button is-primary" onClick={connect}>
-              <strong>Update</strong>
             </button>
           </div>
         </div>

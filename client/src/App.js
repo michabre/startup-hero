@@ -33,6 +33,12 @@ const App = () => {
   const [nftIds, setNftIds] = useState([]);
 
   const [burnSelection, setBurnSelection] = useState("none");
+  const [burnBonus, setBurnBonus] = useState({
+    artist: 0,
+    hacker: 0,
+    hustler: 0,
+    success: 0,
+  });
 
   const [message, setMessage] = useState("Let's get started!");
   const [artistLevel, setArtistLevel] = useState(5);
@@ -111,6 +117,11 @@ const App = () => {
         from: accounts[0],
       });
 
+      const storedAttributes = await instance.methods?.getAttributes().call({
+        from: accounts[0],
+      });
+      console.log(storedAttributes);
+
       const nftTids = await Axios.get(
         configuration.NFT_SERVER + "/nft/collection"
       ).then(function (response) {
@@ -126,6 +137,13 @@ const App = () => {
       setAccounts(accounts);
       setContract(instance);
       setConnected(accounts[0]);
+
+      setBurnBonus({
+        artist: storedAttributes.artist,
+        hacker: storedAttributes.hacker,
+        hustler: storedAttributes.hustler,
+        success: storedAttributes.success,
+      });
     }
 
     try {
@@ -153,7 +171,6 @@ const App = () => {
 
   const updateDescription = (character_1, character_2, character_3) => {
     let options = [character_1, character_2, character_3];
-
     return shuffle(options).toString().replace(/,/g, " ");
   };
 
@@ -167,10 +184,10 @@ const App = () => {
     bodyFormData.append("name", characterName);
     bodyFormData.append("description", characterDescription);
     bodyFormData.append("image", imgName);
-    bodyFormData.append("artist", artistLevel);
-    bodyFormData.append("hacker", hackerLevel);
-    bodyFormData.append("hustler", hustlerLevel);
-    bodyFormData.append("success", successLevel);
+    bodyFormData.append("artist", artistLevel + parseInt(burnBonus.artist));
+    bodyFormData.append("hacker", hackerLevel + parseInt(burnBonus.hacker));
+    bodyFormData.append("hustler", hustlerLevel + parseInt(burnBonus.hustler));
+    bodyFormData.append("success", successLevel + parseInt(burnBonus.success));
     bodyFormData.append("artwork", artwork);
 
     Axios({
@@ -351,9 +368,9 @@ const App = () => {
     });
 
     return {
-      artist: artistTotal / size,
-      hacker: hackerTotal / size,
-      hustler: hustlerTotal / size,
+      artist: Math.round(artistTotal / size),
+      hacker: Math.round(hackerTotal / size),
+      hustler: Math.round(hustlerTotal / size),
       success: successTotal,
     };
   };
@@ -376,15 +393,19 @@ const App = () => {
         });
       console.log(response);
 
-      let url = configuration.NFT_SERVER + "/nft/delete";
-      let bodyFormData = new FormData();
-      bodyFormData.append("tid", tid);
-      Axios({
-        method: "post",
-        url: url,
-        data: bodyFormData,
-        headers: { "Content-Type": "multipart/form-data" },
-      }).then((response) => console.log(response.data));
+      if (response.status === true) {
+        let url = configuration.NFT_SERVER + "/nft/delete";
+        let bodyFormData = new FormData();
+        bodyFormData.append("tid", tid);
+        Axios({
+          method: "post",
+          url: url,
+          data: bodyFormData,
+          headers: { "Content-Type": "multipart/form-data" },
+        }).then((response) => console.log(response.data));
+
+        console.log("nftCollection", nftCollection);
+      }
     }
   };
 
