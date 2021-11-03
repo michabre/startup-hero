@@ -189,7 +189,8 @@ def delete():
   cursor = conn.cursor()
   if request.method == 'POST':
     burn_tid = request.form['tid']
-    cursor.execute("DELETE FROM nfts WHERE tid=?", (burn_tid))
+    sql = """DELETE FROM nfts WHERE tid = ?"""
+    cursor.execute(sql, (burn_tid,))
     conn.commit()
 
     return  f"NFT has been deleted", 201

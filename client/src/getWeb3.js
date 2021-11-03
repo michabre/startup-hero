@@ -23,10 +23,10 @@ const getWeb3 = () =>
         console.log("Injected web3 detected.");
         resolve(web3);
       }
-      // Fallback to localhost; use dev console port by default...
+      // Fallback to Ganache; pretty much always use it for development...
       else {
         const provider = new Web3.providers.HttpProvider(
-          "http://127.0.0.1:8545"
+          "http://127.0.0.1:7545"
         );
         const web3 = new Web3(provider);
         console.log("No web3 instance injected, using Local web3.");

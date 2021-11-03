@@ -20,6 +20,9 @@ import MergeMaster from "./components/MergeMaster";
 
 const configuration = Config("development");
 
+// for testing useEffect hook
+let count = 0;
+
 const App = () => {
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState(null);
@@ -58,7 +61,7 @@ const App = () => {
     return new fabric.Canvas("canvas", {
       height: 512,
       width: 512,
-      backgroundColor: "pink",
+      backgroundColor: "#142C44",
     });
   };
 
@@ -95,6 +98,8 @@ const App = () => {
 
     let portrait = canvas();
     addImage(portrait, layer_1, layer_2, layer_3);
+
+    console.log("useEffect called", count++); // testing useEffect hook
   }, [canvas, layer_1, layer_2, layer_3]);
 
   useEffect(() => {
@@ -120,18 +125,6 @@ const App = () => {
       const storedAttributes = await instance.methods?.getAttributes().call({
         from: accounts[0],
       });
-      console.log(storedAttributes);
-
-      const nftTids = await Axios.get(
-        configuration.NFT_SERVER + "/nft/collection"
-      ).then(function (response) {
-        return response.data?.tids;
-      });
-
-      if (nftBalance > 0) {
-        setNftCount(nftBalance);
-        setNftIds(nftTids);
-      }
 
       setWeb3(web3);
       setAccounts(accounts);
@@ -143,6 +136,14 @@ const App = () => {
         hacker: storedAttributes.hacker,
         hustler: storedAttributes.hustler,
         success: storedAttributes.success,
+      });
+
+      Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
+        response
+      ) {
+        const tids = response.data?.tids;
+        setNftIds(tids);
+        setNftCount(tids.length);
       });
     }
 
@@ -165,18 +166,19 @@ const App = () => {
     }
   }, [artistLevel, hackerLevel, hustlerLevel, nftIds]);
 
-  const updateName = (e) => {
-    setCharacterName(e.target.value);
-  };
-
   const updateDescription = (character_1, character_2, character_3) => {
     let options = [character_1, character_2, character_3];
     return shuffle(options).toString().replace(/,/g, " ");
   };
 
-  const sendToStorage = (tid, imgName, type) => {
+  /**
+   * Sends Character Data to the NFT Storage Facility
+   * @param {number} tid
+   * @param {string} imgName
+   */
+  const sendToStorage = (tid, imgName) => {
     let img = document.getElementById("canvas");
-    let url = configuration.NFT_SERVER + "/nft/" + type;
+    let url = configuration.NFT_SERVER + "/nft/create";
     let bodyFormData = new FormData();
     let artwork = img.toDataURL();
 
@@ -195,9 +197,22 @@ const App = () => {
       url: url,
       data: bodyFormData,
       headers: { "Content-Type": "multipart/form-data" },
-    }).then((response) => console.log(response.data));
+    }).then((response) => {
+      console.log(response.data);
+      Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
+        response
+      ) {
+        const tids = response.data?.tids;
+        setNftIds(tids);
+        setNftCount(tids.length);
+        updateNftData(tids);
+      });
+    });
   };
 
+  /**
+   * Mint Created Character as an NFT
+   */
   const mintCanvas = async () => {
     const response = await contract.methods.mint(accounts[0]).send({
       from: accounts[0],
@@ -208,19 +223,18 @@ const App = () => {
       let values = nftMinted.returnValues;
       let img = "startuphero_" + nftMinted.transactionHash + ".png";
 
-      sendToStorage(values[0], img, "create");
+      sendToStorage(values[0], img);
       setMessage(
         `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
       );
-      const nfts = await contract.methods?.balanceOf(accounts[0]).call({
-        from: accounts[0],
-      });
-      setNftCount(nfts);
     } else {
       setMessage("Something went wrong");
     }
   };
 
+  /**
+   * Randomly Create a Startup Hero
+   */
   const randomClickHandler = () => {
     setArtistLevel(Math.round(Math.random() * 10));
     setHackerLevel(Math.round(Math.random() * 10));
@@ -245,23 +259,35 @@ const App = () => {
     setLayer_3(characters[2].hair); // hair
   };
 
+  /**
+   * Needed to update the NFT data for the Collection view
+   * Will need to rework. Shouldn't be necessary.
+   */
   const connectClickHandler = async () => {
-    console.log(nftIds);
-    let count = nftIds.length;
+    updateNftData(nftIds);
+  };
+
+  /**
+   * Update NFT Data
+   */
+  const updateNftData = async (ids) => {
+    let count = ids.length;
     let collection = [];
     for (let index = 0; index < count; index++) {
-      let nftUri = await contract.methods?.tokenURI(nftIds[index]).call({
+      let nftUri = await contract.methods?.tokenURI(ids[index]).call({
         from: connected,
       });
       collection.push(nftUri);
     }
-
     if (count > 0) {
       setNftCollection(collection);
       getNftData(collection);
     }
   };
 
+  /**
+   * Request NFT Data from the NFT Storage Facility
+   */
   const getNftData = (collection) => {
     const axiosRequest = collection.map((item) => {
       return Axios.get(item);
@@ -284,9 +310,7 @@ const App = () => {
     let nft = item.getAttribute("data-index");
     if (selectedNfts.includes(nft)) {
       return;
-      //item.style.backgroundColor = "rgba(0, 0, 0, 0)";
     } else {
-      //item.style.backgroundColor = "rgba(0,0,0,0.3)";
       removeExtraElements(selectedNfts, 1);
       setSelectedNfts([...selectedNfts, nft]);
     }
@@ -339,15 +363,21 @@ const App = () => {
         url: url,
         data: bodyFormData,
         headers: { "Content-Type": "multipart/form-data" },
-      }).then((response) => console.log(response.data));
+      }).then((response) => {
+        console.log(response.data);
 
+        Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
+          response
+        ) {
+          const tids = response.data?.tids;
+          setNftIds(tids);
+          setNftCount(tids.length);
+          updateNftData(tids);
+        });
+      });
       setMessage(
         `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
       );
-      const nfts = await contract.methods?.balanceOf(accounts[0]).call({
-        from: accounts[0],
-      });
-      setNftCount(nfts);
     } else {
       setMessage("Something went wrong");
     }
@@ -402,9 +432,21 @@ const App = () => {
           url: url,
           data: bodyFormData,
           headers: { "Content-Type": "multipart/form-data" },
-        }).then((response) => console.log(response.data));
+        }).then((response) => {
+          console.log(response.data);
 
-        console.log("nftCollection", nftCollection);
+          Axios.get(configuration.NFT_SERVER + "/nft/collection").then(
+            function (response) {
+              console.log(response);
+              const tids = response.data?.tids;
+              setNftIds(tids);
+              setNftCount(tids.length);
+              updateNftData(tids);
+            }
+          );
+        });
+
+        //console.log("nftCollection", nftCollection);
       }
     }
   };
@@ -450,7 +492,9 @@ const App = () => {
           <Switch>
             <Route exact path="/">
               <Creator
-                updateName={updateName}
+                updateName={(e) => {
+                  setCharacterName(e.target.value);
+                }}
                 characterName={characterName}
                 artistLevel={artistLevel}
                 setArtistLevel={setArtistLevel}
