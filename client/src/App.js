@@ -118,10 +118,6 @@ const App = () => {
         deployedNetwork && deployedNetwork.address
       );
 
-      const nftBalance = await instance.methods?.balanceOf(accounts[0]).call({
-        from: accounts[0],
-      });
-
       const storedAttributes = await instance.methods?.getAttributes().call({
         from: accounts[0],
       });

@@ -14,7 +14,7 @@ const BuildNftList = ({ data, selected }) => {
         <p key={index} className="my-3 is-size-4 is-flex is-align-items-center">
           <span className="tag is-dark is-normal mr-3">{index + 1}</span>{" "}
           <span className="has-text-weight-bold">
-            {data[element].data.name}
+            {data[element]?.data.name}
           </span>
         </p>
       ))}
