@@ -56,7 +56,11 @@ For the Flask Application, in the **'nft_server' directory**, run the following:
 
 ```bash
 # setup virtual environment
+# this way
 py -m virtualenv .
+
+# or this way
+python -m venv .
 
 # start it up
 source ./Scripts/activate
