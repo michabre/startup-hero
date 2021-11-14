@@ -1,35 +1,97 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-import '@openzeppelin/contracts/utils/Counters.sol';
+// import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+// import '@openzeppelin/contracts/utils/Counters.sol';
+
+import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol';
+import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Counters.sol';
+
+
 
 contract StartupHeroCreator is ERC721 {
   using Counters for Counters.Counter;
-  Counters.Counter private _tokenIds;
+  Counters.Counter private _itemId;
+ 
+  /**
+   * Global State Variables
+   */
+  address public admin;
+  uint256 public series;
+  uint256 public currentSeriesCount;
+  string public seriesName; 
+  
+  /**
+   * Struct Types
+   */
 
-  struct attributes {
+  // attributes of a startup hero
+  struct Attributes {
     uint8 artist;
     uint8 hacker;
     uint8 hustler;
     uint8 success;
   }
-  mapping(address => attributes) public userStoredAttributes;    
-  mapping(address => uint256[]) private userOwnedTokens;
-
-  address public admin;
-
+  
+  struct Member {
+    string name;
+    uint256[] creations;
+    bool membership;
+  }
+  
+  mapping(address => Attributes) private userStoredAttributes;    
+  mapping(address => uint256[]) private _userOwnedTokens;
+  mapping(address => Member) private _collective;
+  
   constructor() ERC721('Startup Hero', 'SUP') {
     admin = msg.sender;
+    series = 1;
+    seriesName = "";
+    
+    // Make the Admin the first member of the collective
+    _collective[admin].name = "Number One";
+    _collective[admin].membership = true;
   }
+  
+  /**
+   * MODIFIERS
+   */
+  modifier onlyAdmin {
+      require(msg.sender == admin, "Only the admin can do this");
+      _;
+  }
+  
+  // User is a Member and allowed to Mint
+  modifier collectiveMember {
+      require(_collective[msg.sender].membership == true, 'User is not a member');
+      _;
+  }
+  
+  
+  /**
+   * EVENTS
+   */
+  event NftMinted(uint256 _tid, string _uri, uint256 _time);
+  event NftStatus(string _status, uint256 _tid, string _uri, uint256 _time);
+ 
+  
+  
+  /**
+   * FUNCTIONS
+   */
+   
+  /**
+   * Mint an NFT
+   * 
+   * Only a member of the collective can mint
+   * 
+   */
+  function mint(address to, uint256 tid) collectiveMember() external {
+    _itemId.increment();
+    _collective[msg.sender].creations.push(tid);
+    _safeMint(to, tid);
 
-  function mint(address to) onlyAdmin() external {
-    _tokenIds.increment();
-    uint256 newItemId = _tokenIds.current();
-    userOwnedTokens[msg.sender].push(newItemId);
-    _safeMint(to, newItemId);
-
-    string memory uri = tokenURI(newItemId);
+    string memory uri = tokenURI(tid);
     uint256 time = block.timestamp;
 
     userStoredAttributes[msg.sender].artist = 0;
@@ -37,34 +99,68 @@ contract StartupHeroCreator is ERC721 {
     userStoredAttributes[msg.sender].hustler = 0;
     userStoredAttributes[msg.sender].success = 0;
     
-    emit NftMinted(newItemId, uri, time);
+    emit NftMinted(tid, uri, time);
   }
+  
+  /**
+   * Merge two(2) NFTs
+   * 
+   * Any holder of an NFT can Merge
+   * 
+   */
+   function merge(address to, uint256 tid) external {
+    _itemId.increment();
+    _safeMint(to, tid);
 
+    string memory uri = tokenURI(tid);
+    uint256 time = block.timestamp;
+
+    userStoredAttributes[msg.sender].artist = 0;
+    userStoredAttributes[msg.sender].hacker = 0;
+    userStoredAttributes[msg.sender].hustler = 0;
+    userStoredAttributes[msg.sender].success = 0;
+    
+    emit NftStatus("merge", tid, uri, time);
+  }
+  
+
+  /**
+   * Burn an NFT
+   * 
+   * Any holder of an NFT can burn
+   * 
+   */
   function burn(uint256 tokenId, uint8 _artist, uint8 _hacker, uint8 _hustler, uint8 _success) onlyAdmin() public {
     userStoredAttributes[msg.sender].artist += _artist;
     userStoredAttributes[msg.sender].hacker += _hacker;
     userStoredAttributes[msg.sender].hustler += _hustler;
     userStoredAttributes[msg.sender].success += _success;
-
+    uint256 time = block.timestamp;
+    
     _burn(tokenId);
+    
+    emit NftStatus("burn", tokenId, "This token has been burned.", time);
   }
 
+  /**
+   * Define the URI to use for storing the NFT JSON
+   */
   function _baseURI() internal override pure returns (string memory) {
     return 'http://localhost:5000/nft/';
   }
   
+  /**
+   * Get a specific token owned by the User
+   */
   function getToken(uint256 index) public view returns (uint256) {
-      return userOwnedTokens[msg.sender][index];
+      return _userOwnedTokens[msg.sender][index];
   }
 
-   function getAttributes() public view returns (attributes memory) {
+  /**
+   * Retrieve available attributes that may be applied as part of tehe Burn Bonus
+   */
+   function getAttributes() public view returns (Attributes memory) {
       return userStoredAttributes[msg.sender];
   }
-
-  modifier onlyAdmin {
-      require(msg.sender == admin, "Only the admin can do this");
-      _;
-  }
-
-  event NftMinted(uint256 _tid, string _uri, uint256 _time);
+  
 }
