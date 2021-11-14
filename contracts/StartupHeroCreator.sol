@@ -17,9 +17,6 @@ contract StartupHeroCreator is ERC721 {
    * Global State Variables
    */
   address public admin;
-  uint256 public series;
-  uint256 public currentSeriesCount;
-  string public seriesName; 
   
   /**
    * Struct Types
@@ -39,18 +36,28 @@ contract StartupHeroCreator is ERC721 {
     bool membership;
   }
   
+  struct Series {
+      Counters.Counter active;
+      Counters.Counter count;
+      string name;
+  }
+  
+  Series public currentSeries;
+  
   mapping(address => Attributes) private userStoredAttributes;    
   mapping(address => uint256[]) private _userOwnedTokens;
   mapping(address => Member) private _collective;
   
   constructor() ERC721('Startup Hero', 'SUP') {
     admin = msg.sender;
-    series = 1;
-    seriesName = "";
     
     // Make the Admin the first member of the collective
-    _collective[admin].name = "Number One";
+    _collective[admin].name = "The Boss";
     _collective[admin].membership = true;
+    
+    // Define initial series
+    currentSeries.active.increment();
+    currentSeries.name = "Genesis";
   }
   
   /**
@@ -71,7 +78,7 @@ contract StartupHeroCreator is ERC721 {
   /**
    * EVENTS
    */
-  event NftMinted(uint256 _tid, string _uri, uint256 _time);
+  event NftMinted(uint256 _tid, string _uri, uint256 _time, string _note);
   event NftStatus(string _status, uint256 _tid, string _uri, uint256 _time);
  
   
@@ -86,20 +93,29 @@ contract StartupHeroCreator is ERC721 {
    * Only a member of the collective can mint
    * 
    */
-  function mint(address to, uint256 tid) collectiveMember() external {
+  function mint(address to, uint256 tid, string calldata note) collectiveMember() external {
     _itemId.increment();
     _collective[msg.sender].creations.push(tid);
-    _safeMint(to, tid);
-
-    string memory uri = tokenURI(tid);
-    uint256 time = block.timestamp;
-
+    
+    
+    currentSeries.count.increment();
+    
+    if( currentSeries.count.current() > 5) {
+        currentSeries.active.increment();
+        currentSeries.count.reset();
+    }
+    
     userStoredAttributes[msg.sender].artist = 0;
     userStoredAttributes[msg.sender].hacker = 0;
     userStoredAttributes[msg.sender].hustler = 0;
     userStoredAttributes[msg.sender].success = 0;
     
-    emit NftMinted(tid, uri, time);
+    _safeMint(to, tid);
+    
+    string memory uri = tokenURI(tid);
+    uint256 time = block.timestamp;
+    
+    emit NftMinted(tid, uri, time, note);
   }
   
   /**
@@ -161,6 +177,10 @@ contract StartupHeroCreator is ERC721 {
    */
    function getAttributes() public view returns (Attributes memory) {
       return userStoredAttributes[msg.sender];
+  }
+  
+  function getSeriesInfo() public view returns (Series memory) {
+      return currentSeries;
   }
   
 }
