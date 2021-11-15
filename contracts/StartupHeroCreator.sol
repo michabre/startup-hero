@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-// import '@openzeppelin/contracts/utils/Counters.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import '@openzeppelin/contracts/utils/Counters.sol';
 
-import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol';
-import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Counters.sol';
+// import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol';
+// import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Counters.sol';
 
 
 
@@ -32,14 +32,13 @@ contract StartupHeroCreator is ERC721 {
   
   struct Member {
     string name;
-    uint256[] creations;
+    uint256 balance;
     bool membership;
   }
   
   struct Series {
       Counters.Counter active;
       Counters.Counter count;
-      string name;
   }
   
   Series public currentSeries;
@@ -57,22 +56,24 @@ contract StartupHeroCreator is ERC721 {
     
     // Define initial series
     currentSeries.active.increment();
-    currentSeries.name = "Genesis";
   }
   
   /**
    * MODIFIERS
    */
+   // Admins Only
   modifier onlyAdmin {
-      require(msg.sender == admin, "Only the admin can do this");
-      _;
+    require(msg.sender == admin, "Only the admin can do this");
+    _;
   }
   
-  // User is a Member and allowed to Mint
+  // Collective Members Only
   modifier collectiveMember {
-      require(_collective[msg.sender].membership == true, 'User is not a member');
-      _;
+    require(_collective[msg.sender].membership == true, 'User is not a member');
+    _;
   }
+  
+  
   
   
   /**
@@ -95,8 +96,7 @@ contract StartupHeroCreator is ERC721 {
    */
   function mint(address to, uint256 tid, string calldata note) collectiveMember() external {
     _itemId.increment();
-    _collective[msg.sender].creations.push(tid);
-    
+    _userOwnedTokens[msg.sender].push(tid);
     
     currentSeries.count.increment();
     
@@ -157,6 +157,17 @@ contract StartupHeroCreator is ERC721 {
     
     emit NftStatus("burn", tokenId, "This token has been burned.", time);
   }
+  
+  /**
+   * Add User to Collective
+   * 
+   * Admin can add a user to the collective
+   * 
+   */
+  function addToCollective(address newMember, string calldata newMemberName) onlyAdmin() public {
+    _collective[newMember].name = newMemberName;
+    _collective[newMember].membership = true;
+  }
 
   /**
    * Define the URI to use for storing the NFT JSON
@@ -169,18 +180,21 @@ contract StartupHeroCreator is ERC721 {
    * Get a specific token owned by the User
    */
   function getToken(uint256 index) public view returns (uint256) {
-      return _userOwnedTokens[msg.sender][index];
+    return _userOwnedTokens[msg.sender][index];
   }
 
   /**
    * Retrieve available attributes that may be applied as part of tehe Burn Bonus
    */
-   function getAttributes() public view returns (Attributes memory) {
-      return userStoredAttributes[msg.sender];
+  function getAttributes() public view returns (Attributes memory) {
+    return userStoredAttributes[msg.sender];
   }
   
+  /**
+   * Get status of the current series
+   */
   function getSeriesInfo() public view returns (Series memory) {
-      return currentSeries;
+    return currentSeries;
   }
   
 }
