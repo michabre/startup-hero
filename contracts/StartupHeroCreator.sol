@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
 
+// kept for testing in Remix
 // import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol';
 // import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Counters.sol';
 
@@ -11,7 +12,7 @@ import '@openzeppelin/contracts/utils/Counters.sol';
 
 contract StartupHeroCreator is ERC721 {
   using Counters for Counters.Counter;
-  Counters.Counter private _itemId;
+  Counters.Counter private _indexNumber;
  
   /**
    * Global State Variables
@@ -79,8 +80,8 @@ contract StartupHeroCreator is ERC721 {
   /**
    * EVENTS
    */
-  event NftMinted(uint256 _tid, string _uri, uint256 _time, string _note);
-  event NftStatus(string _status, uint256 _tid, string _uri, uint256 _time);
+  event NftMinted(uint256 _tid, uint256 _current, string _uri, uint256 _time, bytes32 _note);
+  event NftStatus(string _status, uint256 _tid, uint256 _current, string _uri, uint256 _time, bytes32 _note);
  
   
   
@@ -94,14 +95,17 @@ contract StartupHeroCreator is ERC721 {
    * Only a member of the collective can mint
    * 
    */
-  function mint(address to, uint256 tid, string calldata note) collectiveMember() external {
-    _itemId.increment();
+  function mint(address to, uint256 tid) external {
+    _indexNumber.increment();
+    uint256 current = _indexNumber.current();
     _userOwnedTokens[msg.sender].push(tid);
     
     currentSeries.count.increment();
     
     if( currentSeries.count.current() > 5) {
+        // increase to next series level
         currentSeries.active.increment();
+        // reset minted NFT count
         currentSeries.count.reset();
     }
     
@@ -114,8 +118,9 @@ contract StartupHeroCreator is ERC721 {
     
     string memory uri = tokenURI(tid);
     uint256 time = block.timestamp;
+    bytes32 note = "NFT has been minted.";
     
-    emit NftMinted(tid, uri, time, note);
+    emit NftMinted(tid, current, uri, time, note);
   }
   
   /**
@@ -125,18 +130,20 @@ contract StartupHeroCreator is ERC721 {
    * 
    */
    function merge(address to, uint256 tid) external {
-    _itemId.increment();
+    _indexNumber.increment();
     _safeMint(to, tid);
 
     string memory uri = tokenURI(tid);
     uint256 time = block.timestamp;
+    uint256 current = _indexNumber.current();
+    bytes32 note = "Merging has completed.";
 
     userStoredAttributes[msg.sender].artist = 0;
     userStoredAttributes[msg.sender].hacker = 0;
     userStoredAttributes[msg.sender].hustler = 0;
     userStoredAttributes[msg.sender].success = 0;
     
-    emit NftStatus("merge", tid, uri, time);
+    emit NftStatus("merge", tid, current, uri, time, note);
   }
   
 
@@ -152,10 +159,12 @@ contract StartupHeroCreator is ERC721 {
     userStoredAttributes[msg.sender].hustler += _hustler;
     userStoredAttributes[msg.sender].success += _success;
     uint256 time = block.timestamp;
+    uint256 current = _indexNumber.current();
+    bytes32 note = "This token has been burned.";
     
     _burn(tokenId);
     
-    emit NftStatus("burn", tokenId, "This token has been burned.", time);
+    emit NftStatus("burn", tokenId, current, "", time, note);
   }
   
   /**
@@ -190,11 +199,5 @@ contract StartupHeroCreator is ERC721 {
     return userStoredAttributes[msg.sender];
   }
   
-  /**
-   * Get status of the current series
-   */
-  function getSeriesInfo() public view returns (Series memory) {
-    return currentSeries;
-  }
   
 }

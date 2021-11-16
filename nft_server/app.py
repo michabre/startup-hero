@@ -103,6 +103,7 @@ def create():
   cursor = conn.cursor()
 
   if request.method == 'POST':
+    new_id = request.form['id']
     new_tid = request.form['tid']
     new_name = request.form['name']
     new_description = request.form['description']
@@ -114,9 +115,9 @@ def create():
     att_success = request.form['success']
     new_artwork = request.form['artwork']
 
-    sql = """INSERT INTO nfts (tid, name, description, image, hacker, artist, hustler, success, artwork)
-            VALUES (?,?,?,?,?,?,?,?,?)"""
-    cursor = cursor.execute(sql, (new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, att_success, new_artwork))
+    sql = """INSERT INTO nfts (id, tid, name, description, image, hacker, artist, hustler, success, artwork)
+            VALUES (?,?,?,?,?,?,?,?,?,?)"""
+    cursor = cursor.execute(sql, (new_id, new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, att_success, new_artwork))
     conn.commit()
 
     base64_img = new_artwork.replace('data:image/png;base64,','')
@@ -140,6 +141,7 @@ def merge():
   cursor = conn.cursor()
 
   if request.method == 'POST':
+    new_id = request.form['id']
     new_tid = request.form['tid']
     new_name = request.form['name']
     new_description = request.form['description']
@@ -150,9 +152,9 @@ def merge():
     att_success = request.form['success']
     new_artwork = request.form['artwork']
 
-    sql = """INSERT INTO nfts (tid, name, description, image, hacker, artist, hustler, success, artwork)
-            VALUES (?,?,?,?,?,?,?,?,?)"""
-    cursor = cursor.execute(sql, (new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, att_success, new_artwork))
+    sql = """INSERT INTO nfts (id, tid, name, description, image, hacker, artist, hustler, success, artwork)
+            VALUES (?,?,?,?,?,?,?,?,?,?)"""
+    cursor = cursor.execute(sql, (new_id, new_tid, new_name, new_description, new_image, att_hacker, att_artist, att_hustler, att_success, new_artwork))
     conn.commit()
 
     return  f"NFT with the id: {cursor.lastrowid} created successfully", 201
