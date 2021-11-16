@@ -79,7 +79,7 @@ contract StartupHeroCreator is ERC721 {
   
   // total supply reached
   modifier totalSupplyReached {
-    require(currentSupply < totalSupply, 'Total Supply has been reached.');
+    require(currentSupply.current() < totalSupply, 'Total Supply has been reached.');
     _;
   }
   

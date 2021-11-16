@@ -8,6 +8,7 @@
     "bulma": "^0.9.2",
     "bulma-slider": "^2.0.4",
     "html-react-parser": "^1.4.0",
+    "random": "^3.0.6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-input-slider": "^6.0.1",

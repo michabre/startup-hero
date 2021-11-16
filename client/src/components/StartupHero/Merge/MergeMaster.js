@@ -1,7 +1,7 @@
 import React from "react";
 
-import BuildNftList from "./Merge/BuildNftList";
-import NftCollection from "./Layout/NftCollection";
+import BuildNftList from "../../Merge/BuildNftList";
+import NftCollection from "../../Layout/NftCollection";
 
 const MergeMaster = ({
   nftData,

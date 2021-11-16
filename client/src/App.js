@@ -6,6 +6,7 @@ import { fabric } from "fabric";
 import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
 import getWeb3 from "./getWeb3";
 import Config from "./config";
+import random from "random";
 
 import { shuffle } from "./components/helpers/shuffle";
 import { selectedPersona } from "./components/Character/selectedPersona";
@@ -17,14 +18,14 @@ import Hero from "./components/Layout/Hero";
 import Footer from "./components/Layout/Footer";
 
 // Startup Hero Components
-import Creator from "./components/Creator";
-import MergeMaster from "./components/MergeMaster";
+import Creator from "./components/StartupHero/Create/Creator";
+import MergeMaster from "./components/StartupHero/Merge/MergeMaster";
 import Marketplace from "./components/StartupHero/Shop/Marketplace";
 
 const configuration = Config("development");
 
 // for testing useEffect hook
-let count = 0;
+//let count = 0;
 
 const App = () => {
   const [web3, setWeb3] = useState(null);
@@ -102,7 +103,7 @@ const App = () => {
     let portrait = canvas();
     addImage(portrait, layer_1, layer_2, layer_3);
 
-    console.log("useEffect called", count++); // testing useEffect hook
+    //console.log("useEffect called", count++); // testing useEffect hook
   }, [canvas, layer_1, layer_2, layer_3]);
 
   useEffect(() => {
@@ -121,21 +122,23 @@ const App = () => {
         deployedNetwork && deployedNetwork.address
       );
 
-      const storedAttributes = await instance.methods?.getAttributes().call({
-        from: accounts[0],
-      });
-
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
       setConnected(accounts[0]);
 
-      setBurnBonus({
-        artist: storedAttributes.artist,
-        hacker: storedAttributes.hacker,
-        hustler: storedAttributes.hustler,
-        success: storedAttributes.success,
-      });
+      if (instance.methods) {
+        const storedAttributes = await instance.methods?.getAttributes().call({
+          from: accounts[0],
+        });
+
+        setBurnBonus({
+          artist: storedAttributes.artist,
+          hacker: storedAttributes.hacker,
+          hustler: storedAttributes.hustler,
+          success: storedAttributes.success,
+        });
+      }
 
       Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
         response
@@ -236,9 +239,9 @@ const App = () => {
    * Randomly Create a Startup Hero
    */
   const randomClickHandler = () => {
-    setArtistLevel(Math.round(Math.random() * 10));
-    setHackerLevel(Math.round(Math.random() * 10));
-    setHustlerLevel(Math.round(Math.random() * 10));
+    setArtistLevel(random.int(0, 10));
+    setHackerLevel(random.int(0, 10));
+    setHustlerLevel(random.int(0, 10));
 
     let artist = Artist[selectedPersona(artistLevel)];
     let hacker = Hacker[selectedPersona(hackerLevel)];
@@ -251,12 +254,19 @@ const App = () => {
         hustler.description
       )
     );
-
     let characters = shuffle([artist, hacker, hustler]);
 
     setLayer_1(characters[0].clothing); // clothing
     setLayer_2(characters[1].face); // face
     setLayer_3(characters[2].hair); // hair
+
+    //testing random for id creation
+    const multiplier = [
+      100000, 1000000, 10000000, 100000000, 1000000000, 10000000000,
+      100000000000, 1000000000000,
+    ];
+    let randomId = random.float() * multiplier[random.int(0, 7)];
+    console.log(Math.round(randomId));
   };
 
   /**
