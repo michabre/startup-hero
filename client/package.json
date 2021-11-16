@@ -1,6 +1,6 @@
 {
-  "name": "client",
-  "version": "0.1.0",
+  "name": "startup-hero-client",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "axios": "^0.21.1",

@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import Axios from "axios";
+import React from "react";
 
 import BuildNftList from "./Merge/BuildNftList";
 import NftCollection from "./Layout/NftCollection";

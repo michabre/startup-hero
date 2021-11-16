@@ -12,11 +12,14 @@ import { selectedPersona } from "./components/Character/selectedPersona";
 import { Artist, Hacker, Hustler } from "./data/characters";
 
 import Loading from "./components/Loading/Loading";
-import Header from "./components/Layout/Header";
+import Header from "./components/Layout/Header/Header";
 import Hero from "./components/Layout/Hero";
 import Footer from "./components/Layout/Footer";
+
+// Startup Hero Components
 import Creator from "./components/Creator";
 import MergeMaster from "./components/MergeMaster";
+import Marketplace from "./components/StartupHero/Shop/Marketplace";
 
 const configuration = Config("development");
 
@@ -169,6 +172,7 @@ const App = () => {
 
   /**
    * Sends Character Data to the NFT Storage Facility
+   *
    * @param {number} tid
    * @param {string} imgName
    */
@@ -441,8 +445,6 @@ const App = () => {
             }
           );
         });
-
-        //console.log("nftCollection", nftCollection);
       }
     }
   };
@@ -470,8 +472,9 @@ const App = () => {
       <div className="App">
         <Header
           connect={connectClickHandler}
-          homeLink={<Link to="/"></Link>}
+          homeLink={<Link to="/">Create</Link>}
           mergeLink={<Link to="/collection">View Collection</Link>}
+          shopLink={<Link to="/marketplace">Shop</Link>}
           nftCount={nftCount}
           connected={connected}
         />
@@ -522,6 +525,9 @@ const App = () => {
                 burnSelection={burnSelection}
                 setBurnSelection={setBurnSelection}
               />
+            </Route>
+            <Route path="/marketplace">
+              <Marketplace title="The Marketplace" />
             </Route>
           </Switch>
         </section>

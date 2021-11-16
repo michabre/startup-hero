@@ -18,6 +18,8 @@ contract StartupHeroCreator is ERC721 {
    * Global State Variables
    */
   address public admin;
+  uint256 public totalSupply;
+  Counters.Counter public currentSupply;
   
   /**
    * Struct Types
@@ -50,6 +52,7 @@ contract StartupHeroCreator is ERC721 {
   
   constructor() ERC721('Startup Hero', 'SUP') {
     admin = msg.sender;
+    totalSupply = 10000;
     
     // Make the Admin the first member of the collective
     _collective[admin].name = "The Boss";
@@ -64,13 +67,19 @@ contract StartupHeroCreator is ERC721 {
    */
    // Admins Only
   modifier onlyAdmin {
-    require(msg.sender == admin, "Only the admin can do this");
+    require(msg.sender == admin, "Only the admin can do this.");
     _;
   }
   
   // Collective Members Only
   modifier collectiveMember {
-    require(_collective[msg.sender].membership == true, 'User is not a member');
+    require(_collective[msg.sender].membership == true, 'User is not a member.');
+    _;
+  }
+  
+  // total supply reached
+  modifier totalSupplyReached {
+    require(currentSupply < totalSupply, 'Total Supply has been reached.');
     _;
   }
   
@@ -95,7 +104,7 @@ contract StartupHeroCreator is ERC721 {
    * Only a member of the collective can mint
    * 
    */
-  function mint(address to, uint256 tid) external {
+  function mint(address to, uint256 tid) totalSupplyReached() external {
     _indexNumber.increment();
     uint256 current = _indexNumber.current();
     _userOwnedTokens[msg.sender].push(tid);
@@ -113,7 +122,9 @@ contract StartupHeroCreator is ERC721 {
     userStoredAttributes[msg.sender].hacker = 0;
     userStoredAttributes[msg.sender].hustler = 0;
     userStoredAttributes[msg.sender].success = 0;
-    
+
+        
+    currentSupply.increment();    
     _safeMint(to, tid);
     
     string memory uri = tokenURI(tid);

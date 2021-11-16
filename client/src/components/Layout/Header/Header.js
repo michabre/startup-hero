@@ -1,6 +1,14 @@
 import React from "react";
+import "./Header.css";
 
-const Header = ({ connect, mergeLink, nftCount, connected }) => {
+const Header = ({
+  connect,
+  homeLink,
+  mergeLink,
+  shopLink,
+  nftCount,
+  connected,
+}) => {
   const viewCollectionButton = () => {
     if (nftCount > 0) {
       return (
@@ -13,6 +21,7 @@ const Header = ({ connect, mergeLink, nftCount, connected }) => {
 
   return (
     <nav
+      id="header"
       className="navbar is-flex is-justify-content-space-between"
       role="navigation"
       aria-label="main navigation"
@@ -21,6 +30,8 @@ const Header = ({ connect, mergeLink, nftCount, connected }) => {
         <a className="navbar-item" href="/">
           <img src="./startup-logo.png" alt="a really cool startup icon" />
         </a>
+        <div className="navbar-item">{homeLink}</div>
+        <div className="navbar-item">{shopLink}</div>
       </div>
 
       <div className="navbar-end">
