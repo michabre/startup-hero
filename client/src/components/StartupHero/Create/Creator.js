@@ -1,5 +1,5 @@
 import React from "react";
-import { shuffle } from "../../helpers/shuffle";
+import { shuffle } from "../../../helpers/shuffle";
 import { selectedPersona } from "../../Character/selectedPersona";
 import { Artist, Hacker, Hustler } from "../../../data/characters";
 import Trait from "../Traits/Trait";

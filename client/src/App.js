@@ -1,17 +1,22 @@
+import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
+
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Axios from "axios";
 import parse from "html-react-parser";
 import { fabric } from "fabric";
-import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
+
 import getWeb3 from "./getWeb3";
 import Config from "./config";
-import random from "random";
 
-import { shuffle } from "./components/helpers/shuffle";
+import { shuffle } from "./helpers/shuffle";
+import { randomNumber, randomInteger } from "./helpers/randomNumber";
+
+// Data
 import { selectedPersona } from "./components/Character/selectedPersona";
 import { Artist, Hacker, Hustler } from "./data/characters";
 
+// Layout Components
 import Loading from "./components/Loading/Loading";
 import Header from "./components/Layout/Header/Header";
 import Hero from "./components/Layout/Hero";
@@ -22,6 +27,7 @@ import Creator from "./components/StartupHero/Create/Creator";
 import MergeMaster from "./components/StartupHero/Merge/MergeMaster";
 import Marketplace from "./components/StartupHero/Shop/Marketplace";
 
+//
 const configuration = Config("development");
 
 // for testing useEffect hook
@@ -57,10 +63,18 @@ const App = () => {
     "Description missing."
   );
 
+  // const [canvas, setCanvas] = useState(
+  //   new fabric.Canvas("canvas", {
+  //     height: 512,
+  //     width: 512,
+  //     backgroundColor: "#142C44",
+  //   })
+  // );
   const [layer_1, setLayer_1] = useState("classical-artist_clothing.png");
   const [layer_2, setLayer_2] = useState("classical-artist_face.png");
   const [layer_3, setLayer_3] = useState("classical-artist_hair.png");
 
+  // Needs to be moved into a component
   const canvas = () => {
     return new fabric.Canvas("canvas", {
       height: 512,
@@ -68,43 +82,6 @@ const App = () => {
       backgroundColor: "#142C44",
     });
   };
-
-  useEffect(() => {
-    function addImage(canvas, char1, char2, char3) {
-      fabric.Image.fromURL(
-        configuration.IMAGES + "character-base.png",
-        function (img) {
-          let base = img.scale(1).set({ left: 0, top: 0 });
-
-          fabric.Image.fromURL(configuration.IMAGES + char1, function (img) {
-            let img1 = img.scale(1).set({ left: 0, top: 0 });
-
-            fabric.Image.fromURL(configuration.IMAGES + char2, function (img) {
-              let img2 = img.scale(1).set({ left: 0, top: 0 });
-
-              fabric.Image.fromURL(
-                configuration.IMAGES + char3,
-                function (img) {
-                  let img3 = img.scale(1).set({ left: 0, top: 0 });
-                  canvas.add(
-                    new fabric.Group([base, img1, img2, img3], {
-                      left: 0,
-                      top: 0,
-                    })
-                  );
-                }
-              );
-            });
-          });
-        }
-      );
-    }
-
-    let portrait = canvas();
-    addImage(portrait, layer_1, layer_2, layer_3);
-
-    //console.log("useEffect called", count++); // testing useEffect hook
-  }, [canvas, layer_1, layer_2, layer_3]);
 
   useEffect(() => {
     async function fetchData() {
@@ -168,6 +145,44 @@ const App = () => {
     }
   }, [artistLevel, hackerLevel, hustlerLevel, nftIds]);
 
+  useEffect(() => {
+    function addImage(canvas, char1, char2, char3) {
+      fabric.Image.fromURL(
+        configuration.IMAGES + "character-base.png",
+        function (img) {
+          let base = img.scale(1).set({ left: 0, top: 0 });
+
+          fabric.Image.fromURL(configuration.IMAGES + char1, function (img) {
+            let img1 = img.scale(1).set({ left: 0, top: 0 });
+
+            fabric.Image.fromURL(configuration.IMAGES + char2, function (img) {
+              let img2 = img.scale(1).set({ left: 0, top: 0 });
+
+              fabric.Image.fromURL(
+                configuration.IMAGES + char3,
+                function (img) {
+                  let img3 = img.scale(1).set({ left: 0, top: 0 });
+                  canvas.add(
+                    new fabric.Group([base, img1, img2, img3], {
+                      left: 0,
+                      top: 0,
+                    })
+                  );
+                }
+              );
+            });
+          });
+        }
+      );
+    }
+
+    let portrait = canvas();
+    addImage(portrait, layer_1, layer_2, layer_3);
+    //addImage(canvas, layer_1, layer_2, layer_3);
+
+    //console.log("useEffect called", count++); // testing useEffect hook
+  }, [canvas, layer_1, layer_2, layer_3]);
+
   const updateDescription = (character_1, character_2, character_3) => {
     let options = [character_1, character_2, character_3];
     return shuffle(options).toString().replace(/,/g, " ");
@@ -179,12 +194,13 @@ const App = () => {
    * @param {number} tid
    * @param {string} imgName
    */
-  const sendToStorage = (tid, imgName) => {
+  const sendToStorage = (id, tid, imgName) => {
     let img = document.getElementById("canvas");
     let url = configuration.NFT_SERVER + "/nft/create";
     let bodyFormData = new FormData();
     let artwork = img.toDataURL();
 
+    bodyFormData.append("id", id);
     bodyFormData.append("tid", tid);
     bodyFormData.append("name", characterName);
     bodyFormData.append("description", characterDescription);
@@ -201,15 +217,16 @@ const App = () => {
       data: bodyFormData,
       headers: { "Content-Type": "multipart/form-data" },
     }).then((response) => {
-      console.log(response.data);
-      Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
-        response
-      ) {
-        const tids = response.data?.tids;
-        setNftIds(tids);
-        setNftCount(tids.length);
-        updateNftData(tids);
-      });
+      //console.log(response);
+      // Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
+      //   response
+      // ) {
+        // const tids = response.data?.tids;
+        // setNftIds(tids);
+        // setNftCount(tids.length);
+        // updateNftData(tids);
+      //   console.log(response);
+      // });
     });
   };
 
@@ -217,16 +234,22 @@ const App = () => {
    * Mint Created Character as an NFT
    */
   const mintCanvas = async () => {
-    const response = await contract.methods.mint(accounts[0]).send({
+    let token = randomNumber();
+
+    const response = await contract.methods.mint(accounts[0], token).send({
       from: accounts[0],
     });
 
     if (response.status === true) {
       let nftMinted = response.events.NftMinted;
       let values = nftMinted.returnValues;
-      let img = "startuphero_" + nftMinted.transactionHash + ".png";
 
-      sendToStorage(values[0], img);
+      console.log(values);
+      //let img = "startuphero_" + nftMinted.transactionHash + ".png";
+      //sendToStorage(values[0], img);
+
+      let img = "startuphero_" + token + ".png";
+      sendToStorage(values[1], token, img);
       setMessage(
         `NFT Minted. TxHash: ${nftMinted.transactionHash} <br /> <a href="${values[1]}" target="_blank">View JSON</a>`
       );
@@ -239,9 +262,9 @@ const App = () => {
    * Randomly Create a Startup Hero
    */
   const randomClickHandler = () => {
-    setArtistLevel(random.int(0, 10));
-    setHackerLevel(random.int(0, 10));
-    setHustlerLevel(random.int(0, 10));
+    setArtistLevel(randomInteger(0, 10));
+    setHackerLevel(randomInteger(0, 10));
+    setHustlerLevel(randomInteger(0, 10));
 
     let artist = Artist[selectedPersona(artistLevel)];
     let hacker = Hacker[selectedPersona(hackerLevel)];
@@ -259,14 +282,6 @@ const App = () => {
     setLayer_1(characters[0].clothing); // clothing
     setLayer_2(characters[1].face); // face
     setLayer_3(characters[2].hair); // hair
-
-    //testing random for id creation
-    const multiplier = [
-      100000, 1000000, 10000000, 100000000, 1000000000, 10000000000,
-      100000000000, 1000000000000,
-    ];
-    let randomId = random.float() * multiplier[random.int(0, 7)];
-    console.log(Math.round(randomId));
   };
 
   /**

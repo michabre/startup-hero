@@ -90,6 +90,7 @@ contract StartupHeroCreator is ERC721 {
    * EVENTS
    */
   event NftMinted(uint256 _tid, uint256 _current, string _uri, uint256 _time, bytes32 _note);
+  
   event NftStatus(string _status, uint256 _tid, uint256 _current, string _uri, uint256 _time, bytes32 _note);
  
   
