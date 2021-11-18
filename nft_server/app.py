@@ -5,6 +5,7 @@ import sqlite3
 import requests
 import base64
 import urllib.request
+import namegenerator
 
 from os.path import join, dirname
 from dotenv import load_dotenv, find_dotenv
@@ -18,19 +19,78 @@ app = Flask(__name__)
 CORS(app)
 
 url = os.getenv("SITE_URL")
-db = os.getenv("DB")
+nfts = os.getenv("DB_NFTS")
+users = os.getenv("DB_USERS")
 
 #
 # Store data in a Sqlite database
 #
-def db_connection():
+def db_nfts():
   conn = None
   try:
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(nfts)
   except sqlite3.error as e:
     print(e)
   return conn
 
+#
+# Setup Users Database
+#
+def db_users():
+  conn = None
+  try:
+    conn = sqlite3.connect(users)
+  except sqlite3.error as e:
+    print(e)
+  return conn
+
+#
+# Get User Collection of Token Ids
+#
+@app.route('/user/name', methods=["POST"])
+@cross_origin()
+def getUserCollection():
+  conn = db_users()
+  cursor = conn.cursor()
+  record = None
+
+  if request.method == 'POST':
+    user = request.form['stored']
+    cursor.execute('SELECT * FROM users WHERE stored=?', (user,))
+    record = cursor.fetchone()
+    conn.commit()
+  
+    if record is not None:
+      return jsonify(
+        collection=record[3]
+        ), 200
+
+    else:
+      return render_template(
+        'index.html', 
+        title='404', 
+        subtitle='Could not find the user you are looking for.'), 404
+
+#
+# Add a User
+#
+@app.route('/user/add', methods=["POST"])
+@cross_origin()
+def addUser():
+  conn = db_users()
+  cursor = conn.cursor()
+
+  if request.method == 'POST':
+    new_username = namegenerator.gen()
+    new_stored = request.form['stored']
+    new_collection = request.form['collection']
+    
+    sql = """INSERT INTO users (username, stored, collection)
+            VALUES (?,?,?)"""
+    cursor = cursor.execute(sql, (new_username, new_stored, new_collection))
+    conn.commit()
+
+    return  f"User has been added successfully", 201
 #
 # Landing Page
 #
@@ -46,7 +106,7 @@ def index():
 #
 @app.route('/nft/<int:tid>', methods=['GET'])
 def nft(tid):
-  conn = db_connection()
+  conn = db_nfts()
   cursor = conn.cursor()
   record = None
 
@@ -74,7 +134,7 @@ def nft(tid):
 #
 @app.route('/nft/collection', methods=['GET'])
 def nftCollection():
-  conn = db_connection()
+  conn = db_nfts()
   cursor = conn.cursor()
   sql = """SELECT * FROM nfts WHERE tid IS NOT NULL"""
   cursor.execute(sql)
@@ -99,7 +159,7 @@ def nftCollection():
 @cross_origin()
 def create():
 
-  conn = db_connection()
+  conn = db_nfts()
   cursor = conn.cursor()
 
   if request.method == 'POST':
@@ -137,7 +197,7 @@ def create():
 @cross_origin()
 def merge():
 
-  conn = db_connection()
+  conn = db_nfts()
   cursor = conn.cursor()
 
   if request.method == 'POST':
@@ -163,7 +223,7 @@ def merge():
 #
 @app.route('/nft/image/<int:tid>', methods=['GET'])
 def showNft(tid):
-  conn = db_connection()
+  conn = db_nfts()
   cursor = conn.cursor()
   record = None
 
@@ -187,7 +247,7 @@ def showImage(str):
 @app.route("/nft/delete", methods=["POST"])
 @cross_origin()
 def delete():
-  conn = db_connection()
+  conn = db_nfts()
   cursor = conn.cursor()
   if request.method == 'POST':
     burn_tid = request.form['tid']
