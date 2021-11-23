@@ -62,26 +62,14 @@ const App = () => {
   const [characterDescription, setCharacterDescription] = useState(
     "Description missing."
   );
-
-  // const [canvas, setCanvas] = useState(
-  //   new fabric.Canvas("canvas", {
-  //     height: 512,
-  //     width: 512,
-  //     backgroundColor: "#142C44",
-  //   })
-  // );
-  const [layer_1, setLayer_1] = useState("classical-artist_clothing.png");
-  const [layer_2, setLayer_2] = useState("classical-artist_face.png");
-  const [layer_3, setLayer_3] = useState("classical-artist_hair.png");
-
-  // Needs to be moved into a component
-  const canvas = () => {
-    return new fabric.Canvas("canvas", {
-      height: 512,
-      width: 512,
-      backgroundColor: "#142C44",
-    });
-  };
+  const [canvas, setCanvas] = useState(new fabric.Canvas("canvas", {
+        height: 512,
+        width: 512,
+        backgroundColor: "#142C44",
+      }));
+  const [layer_1, setLayer_1] = useState("");
+  const [layer_2, setLayer_2] = useState("");
+  const [layer_3, setLayer_3] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -102,6 +90,14 @@ const App = () => {
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
+
+      setCanvas(
+        new fabric.Canvas("canvas", {
+          height: 512,
+          width: 512,
+          backgroundColor: "#fff",
+        })
+      );
       setConnected(accounts[0]);
 
       if (instance.methods) {
@@ -117,13 +113,13 @@ const App = () => {
         });
       }
 
-      Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
-        response
-      ) {
-        const tids = response.data?.tids;
-        setNftIds(tids);
-        setNftCount(tids.length);
-      });
+      // Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
+      //   response
+      // ) {
+      //   const tids = response.data?.tids;
+      //   setNftIds(tids);
+      //   setNftCount(tids.length);
+      // });
     }
 
     try {
@@ -145,43 +141,17 @@ const App = () => {
     }
   }, [artistLevel, hackerLevel, hustlerLevel, nftIds]);
 
+
   useEffect(() => {
-    function addImage(canvas, char1, char2, char3) {
-      fabric.Image.fromURL(
-        configuration.IMAGES + "character-base.png",
-        function (img) {
-          let base = img.scale(1).set({ left: 0, top: 0 });
+    console.log('runs after every component update');
+    setCanvas(new fabric.Canvas("canvas", {
+      height: 512,
+      width: 512,
+      backgroundColor: "#fff",
+    }));
 
-          fabric.Image.fromURL(configuration.IMAGES + char1, function (img) {
-            let img1 = img.scale(1).set({ left: 0, top: 0 });
-
-            fabric.Image.fromURL(configuration.IMAGES + char2, function (img) {
-              let img2 = img.scale(1).set({ left: 0, top: 0 });
-
-              fabric.Image.fromURL(
-                configuration.IMAGES + char3,
-                function (img) {
-                  let img3 = img.scale(1).set({ left: 0, top: 0 });
-                  canvas.add(
-                    new fabric.Group([base, img1, img2, img3], {
-                      left: 0,
-                      top: 0,
-                    })
-                  );
-                }
-              );
-            });
-          });
-        }
-      );
-    }
-
-    let portrait = canvas();
-    addImage(portrait, layer_1, layer_2, layer_3);
-    //addImage(canvas, layer_1, layer_2, layer_3);
-
-    //console.log("useEffect called", count++); // testing useEffect hook
-  }, [canvas, layer_1, layer_2, layer_3]);
+    // check NFT count
+  }, [setCanvas]);
 
   const updateDescription = (character_1, character_2, character_3) => {
     let options = [character_1, character_2, character_3];
@@ -243,11 +213,6 @@ const App = () => {
     if (response.status === true) {
       let nftMinted = response.events.NftMinted;
       let values = nftMinted.returnValues;
-
-      console.log(values);
-      //let img = "startuphero_" + nftMinted.transactionHash + ".png";
-      //sendToStorage(values[0], img);
-
       let img = "startuphero_" + token + ".png";
       sendToStorage(values[1], token, img);
       setMessage(
@@ -534,6 +499,11 @@ const App = () => {
                 setLayer_3={setLayer_3}
                 randomClickHandler={randomClickHandler}
                 mintCanvas={mintCanvas}
+                configuration={configuration}
+                canvas={canvas}
+                layer_1={layer_1}
+                layer_2={layer_2}
+                layer_3={layer_3}
               />
             </Route>
             <Route path="/collection">

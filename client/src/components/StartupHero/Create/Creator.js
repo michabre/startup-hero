@@ -22,6 +22,11 @@ const Creator = ({
   setLayer_3,
   randomClickHandler,
   mintCanvas,
+  configuration,
+  canvas,
+  layer_1,
+  layer_2,
+  layer_3
 }) => {
   return (
     <div className="columns mt-0">
@@ -144,6 +149,11 @@ const Creator = ({
           hustler={hustlerLevel}
           random={randomClickHandler}
           mint={mintCanvas}
+          configuration={configuration}
+          canvas={canvas}
+          layer_1={layer_1}
+          layer_2={layer_2}
+          layer_3={layer_3}
         />
       </div>
     </div>

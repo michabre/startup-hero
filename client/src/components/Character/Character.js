@@ -1,4 +1,5 @@
 import React from "react";
+import { fabric } from "fabric";
 import "./Character.css";
 
 const Character = ({
@@ -9,6 +10,11 @@ const Character = ({
   hustler,
   mint,
   random,
+  configuration,
+  canvas,
+  layer_1,
+  layer_2,
+  layer_3
 }) => {
   function mintButton(handler) {
     let total = artist + hacker + hustler;
@@ -35,6 +41,44 @@ const Character = ({
     }
   }
 
+    function addImage(char1, char2, char3) {
+
+      // reset canvas
+      canvas.clear();
+
+      fabric.Image.fromURL(
+        configuration.IMAGES + "character-base.png",
+        function (img) {
+          let base = img.scale(1).set({ left: 0, top: 0 });
+
+          fabric.Image.fromURL(configuration.IMAGES + char1, function (img) {
+            let img1 = img.scale(1).set({ left: 0, top: 0 });
+
+            fabric.Image.fromURL(configuration.IMAGES + char2, function (img) {
+              let img2 = img.scale(1).set({ left: 0, top: 0 });
+
+              fabric.Image.fromURL(
+                configuration.IMAGES + char3,
+                function (img) {
+                  let img3 = img.scale(1).set({ left: 0, top: 0 });
+                  canvas.add(
+                    new fabric.Group([base, img1, img2, img3], {
+                      left: 0,
+                      top: 0,
+                    })
+                  );
+                }
+              );
+            });
+          });
+        }
+      );
+    }
+
+    if(layer_1 && layer_2 && layer_3) {
+      addImage(layer_1, layer_2, layer_3);
+    }
+    
   return (
     <>
       <div className="columns">
