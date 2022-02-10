@@ -1,18 +1,22 @@
 # System Files
 .DS_STORE
 
+#Hardhat files
+cache
+artifacts
+hardhat.config.js
 
 # Dev Dependencies
 node_modules
 .env
+coverage
+coverage.json
+typechain
 
 # Flask
 __pycache__
 *.cfg
 Lib
 nft_server/Lib
-Scripts
 nft_server/Scripts
-# does not need to be in the repo
-# users should start with a clean slate
 nft_server/nfts.sqlite 

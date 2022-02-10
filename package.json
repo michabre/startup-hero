@@ -2,24 +2,33 @@
   "name": "startuphero",
   "version": "1.0.0",
   "description": "Create artwork to be minted as an NFT. In this case, images of software engineers. Developed for the ETB Project #3 hackathon.",
-  "main": "truffle-config.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "ganache": "truffle migrate --network ganache"
+    "compile": "npx hardhat run scripts/run.js",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "ganache": "npx hardhat run scripts/deploy.js --network ganache"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.1.0",
     "@openzeppelin/test-helpers": "^0.5.11",
     "@truffle/hdwallet-provider": "^1.3.0",
     "chai": "^4.3.4",
-    "chai-as-promised": "^7.1.1",
-    "chai-bn": "^0.2.1",
-    "dotenv": "^10.0.0",
-    "mocha": "^9.2.0",
-    "solidity-coverage": "^0.7.18"
+    "dotenv": "^10.0.0"
   },
   "author": "michabre",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.4",
+    "@nomiclabs/hardhat-waffle": "^2.0.2",
+    "@openzeppelin/contracts": "^4.4.2",
+    "chai": "^4.3.6",
+    "ethereum-waffle": "^3.4.0",
+    "ethers": "^5.5.4",
+    "hardhat": "^2.8.3",
+    "mocha": "^9.2.0",
+    "solidity-coverage": "^0.7.18"
+  }
 }
