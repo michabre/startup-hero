@@ -1,12 +1,12 @@
-import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
-
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { ethers } from "ethers";
 import Axios from "axios";
 import parse from "html-react-parser";
 import { fabric } from "fabric";
 
-import getWeb3 from "./getWeb3";
+import abi from "./contracts/StartupHeroCreator.json"
+
 import Config from "./config";
 
 import { shuffle } from "./helpers/shuffle";
@@ -30,10 +30,11 @@ import Marketplace from "./components/StartupHero/Shop/Marketplace";
 //
 const configuration = Config("development");
 
-// for testing useEffect hook
-//let count = 0;
-
 const App = () => {
+  let provider;
+  let signer;
+  let startupHeroCreatorContract;
+
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState(null);
   const [contract, setContract] = useState(null);
@@ -71,47 +72,49 @@ const App = () => {
   const [layer_2, setLayer_2] = useState("");
   const [layer_3, setLayer_3] = useState("");
 
-  useEffect(() => {
-    async function fetchData() {
-      // Get network provider and web3 instance.
-      const web3 = await getWeb3();
+  const contractABI = abi.abi
 
-      // Use web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     // Get network provider and web3 instance.
+  //     const web3 = await getWeb3();
 
-      // Get the contract instance.
-      const networkId = await web3.eth.net.getId();
-      const deployedNetwork = StartupHeroCreator.networks[networkId];
-      const instance = new web3.eth.Contract(
-        StartupHeroCreator.abi,
-        deployedNetwork && deployedNetwork.address
-      );
+  //     // Use web3 to get the user's accounts.
+  //     const accounts = await web3.eth.getAccounts();
 
-      setWeb3(web3);
-      setAccounts(accounts);
-      setContract(instance);
+  //     // Get the contract instance.
+  //     const networkId = await web3.eth.net.getId();
+  //     const deployedNetwork = StartupHeroCreator.networks[networkId];
+  //     const instance = new web3.eth.Contract(
+  //       StartupHeroCreator.abi,
+  //       deployedNetwork && deployedNetwork.address
+  //     );
 
-      setCanvas(
-        new fabric.Canvas("canvas", {
-          height: 512,
-          width: 512,
-          backgroundColor: "#fff",
-        })
-      );
-      setConnected(accounts[0]);
+  //     setWeb3(web3);
+  //     setAccounts(accounts);
+  //     setContract(instance);
 
-      if (instance.methods) {
-        const storedAttributes = await instance.methods?.getAttributes().call({
-          from: accounts[0],
-        });
+  //     setCanvas(
+  //       new fabric.Canvas("canvas", {
+  //         height: 512,
+  //         width: 512,
+  //         backgroundColor: "#fff",
+  //       })
+  //     );
+  //     setConnected(accounts[0]);
 
-        setBurnBonus({
-          artist: storedAttributes.artist,
-          hacker: storedAttributes.hacker,
-          hustler: storedAttributes.hustler,
-          success: storedAttributes.success,
-        });
-      }
+  //     if (instance.methods) {
+  //       const storedAttributes = await instance.methods?.getAttributes().call({
+  //         from: accounts[0],
+  //       });
+
+  //       setBurnBonus({
+  //         artist: storedAttributes.artist,
+  //         hacker: storedAttributes.hacker,
+  //         hustler: storedAttributes.hustler,
+  //         success: storedAttributes.success,
+  //       });
+  //     }
 
       // Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
       //   response
@@ -120,26 +123,26 @@ const App = () => {
       //   setNftIds(tids);
       //   setNftCount(tids.length);
       // });
-    }
+  //   }
 
-    try {
-      //
-      fetchData();
-      //
-      setCharacterDescription(
-        updateDescription(
-          Artist[selectedPersona(artistLevel)].description,
-          Hacker[selectedPersona(hackerLevel)].description,
-          Hustler[selectedPersona(hustlerLevel)].description
-        )
-      );
-    } catch (error) {
-      setMessage(
-        `Failed to load web3, accounts, or contract. Check console for details.`
-      );
-      console.log(error);
-    }
-  }, [artistLevel, hackerLevel, hustlerLevel, nftIds]);
+  //   try {
+  //     //
+  //     fetchData();
+  //     //
+  //     setCharacterDescription(
+  //       updateDescription(
+  //         Artist[selectedPersona(artistLevel)].description,
+  //         Hacker[selectedPersona(hackerLevel)].description,
+  //         Hustler[selectedPersona(hustlerLevel)].description
+  //       )
+  //     );
+  //   } catch (error) {
+  //     setMessage(
+  //       `Failed to load web3, accounts, or contract. Check console for details.`
+  //     );
+  //     console.log(error);
+  //   }
+  // }, [artistLevel, hackerLevel, hustlerLevel, nftIds]);
 
 
   useEffect(() => {
@@ -187,16 +190,7 @@ const App = () => {
       data: bodyFormData,
       headers: { "Content-Type": "multipart/form-data" },
     }).then((response) => {
-      //console.log(response);
-      // Axios.get(configuration.NFT_SERVER + "/nft/collection").then(function (
-      //   response
-      // ) {
-        // const tids = response.data?.tids;
-        // setNftIds(tids);
-        // setNftCount(tids.length);
-        // updateNftData(tids);
-      //   console.log(response);
-      // });
+      console.log(response);
     });
   };
 
