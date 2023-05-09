@@ -1,20 +1,19 @@
 {
   "name": "startup-hero-client",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "dependencies": {
-    "axios": "^0.21.1",
-    "bignumber.js": "^9.0.1",
-    "bulma": "^0.9.2",
-    "bulma-slider": "^2.0.4",
-    "html-react-parser": "^1.4.0",
-    "random": "^3.0.6",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "axios": "^1.4.0",
+    "bignumber.js": "^9.1.1",
+    "bulma": "^0.9.4",
+    "bulma-slider": "^2.0.5",
+    "html-react-parser": "^3.0.16",
+    "random": "^4.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-input-slider": "^6.0.1",
-    "react-scripts": "4.0.3",
-    "web-vitals": "^1.0.1",
-    "web3": "1.2.2"
+    "react-scripts": "5.0.1",
+    "web3": "1.9.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -38,7 +37,7 @@
     ]
   },
   "devDependencies": {
-    "fabric": "^4.6.0",
-    "react-router-dom": "^5.3.0"
+    "fabric": "^5.3.0",
+    "react-router-dom": "^6.11.1"
   }
 }

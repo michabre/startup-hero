@@ -1,7 +1,7 @@
 import StartupHeroCreator from "./contracts/StartupHeroCreator.json";
 
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Axios from "axios";
 import parse from "html-react-parser";
 import { fabric } from "fabric";
@@ -71,6 +71,11 @@ const App = () => {
   const [layer_2, setLayer_2] = useState("");
   const [layer_3, setLayer_3] = useState("");
 
+  // generate a random character on page load
+  useEffect(() => {
+    randomClickHandler()
+  }, [])
+
   useEffect(() => {
     async function fetchData() {
       // Get network provider and web3 instance.
@@ -98,6 +103,7 @@ const App = () => {
           backgroundColor: "#fff",
         })
       );
+
       setConnected(accounts[0]);
 
       if (instance.methods) {
@@ -478,7 +484,7 @@ const App = () => {
         </div>
 
         <section className="container px-3 py-5">
-          <Switch>
+          <Routes>
             <Route exact path="/">
               <Creator
                 updateName={(e) => {
@@ -524,7 +530,7 @@ const App = () => {
             <Route path="/marketplace">
               <Marketplace title="The Marketplace" />
             </Route>
-          </Switch>
+          </Routes>
         </section>
         <Footer />
       </div>
